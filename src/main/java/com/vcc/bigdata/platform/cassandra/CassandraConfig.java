@@ -1,7 +1,7 @@
 package com.vcc.bigdata.platform.cassandra;
 
 import com.google.common.net.HostAndPort;
-import com.vcc.bigdata.common.config.Properties;
+import com.agraphdb.common.config.Properties;
 
 import java.util.Collection;
 import java.util.LinkedHashSet;

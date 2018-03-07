@@ -1,7 +1,7 @@
 package com.vcc.bigdata.graphdb.cassandra;
 
 import com.google.common.base.Preconditions;
-import com.vcc.bigdata.common.config.Properties;
+import com.agraphdb.common.config.Properties;
 import com.vcc.bigdata.graphdb.repository.EdgeRepository;
 import com.vcc.bigdata.graphdb.repository.RepositoryFactory;
 import com.vcc.bigdata.graphdb.repository.VertexRepository;

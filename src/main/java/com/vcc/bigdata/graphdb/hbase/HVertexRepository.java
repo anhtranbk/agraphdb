@@ -2,12 +2,12 @@ package com.vcc.bigdata.graphdb.hbase;
 
 import com.google.common.collect.Iterables;
 import com.google.common.util.concurrent.ListenableFuture;
-import com.vcc.bigdata.common.concurrency.FutureAdapter;
-import com.vcc.bigdata.common.config.Properties;
-import com.vcc.bigdata.common.utils.DateTimes;
-import com.vcc.bigdata.common.utils.IterableAdapter;
-import com.vcc.bigdata.common.utils.Strings;
-import com.vcc.bigdata.common.utils.Utils;
+import com.agraphdb.common.concurrency.FutureAdapter;
+import com.agraphdb.common.config.Properties;
+import com.agraphdb.common.utils.DateTimes;
+import com.agraphdb.common.utils.IterableAdapter;
+import com.agraphdb.common.utils.Strings;
+import com.agraphdb.common.utils.Utils;
 import com.vcc.bigdata.graphdb.Vertex;
 import com.vcc.bigdata.graphdb.repository.VertexRepository;
 import com.vcc.bigdata.platform.hbase.HBaseRuntimeException;

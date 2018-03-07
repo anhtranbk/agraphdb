@@ -1,7 +1,7 @@
 package com.vcc.bigdata.graphdb;
 
 import com.google.common.util.concurrent.ListenableFuture;
-import com.vcc.bigdata.common.utils.IterableAdapter;
+import com.agraphdb.common.utils.IterableAdapter;
 
 import java.util.ArrayList;
 import java.util.List;

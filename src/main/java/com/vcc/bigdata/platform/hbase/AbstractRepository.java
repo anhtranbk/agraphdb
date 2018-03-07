@@ -1,8 +1,8 @@
 package com.vcc.bigdata.platform.hbase;
 
 import com.google.common.util.concurrent.Futures;
-import com.vcc.bigdata.common.config.Properties;
-import com.vcc.bigdata.common.utils.ThreadPool;
+import com.agraphdb.common.config.Properties;
+import com.agraphdb.common.utils.ThreadPool;
 import org.apache.hadoop.hbase.HColumnDescriptor;
 import org.apache.hadoop.hbase.HTableDescriptor;
 import org.apache.hadoop.hbase.TableName;

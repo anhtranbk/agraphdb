@@ -1,7 +1,7 @@
 package com.vcc.bigdata.graphdb;
 
-import com.vcc.bigdata.common.config.Properties;
-import com.vcc.bigdata.common.utils.Reflects;
+import com.agraphdb.common.config.Properties;
+import com.agraphdb.common.utils.Reflects;
 import com.vcc.bigdata.graphdb.repository.RepositoryFactory;
 
 /**

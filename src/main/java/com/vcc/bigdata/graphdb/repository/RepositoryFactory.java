@@ -1,6 +1,6 @@
 package com.vcc.bigdata.graphdb.repository;
 
-import com.vcc.bigdata.common.config.Configurable;
+import com.agraphdb.common.config.Configurable;
 
 /**
  * TODO: Class description here.

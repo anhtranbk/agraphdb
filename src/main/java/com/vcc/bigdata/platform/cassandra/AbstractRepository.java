@@ -1,7 +1,7 @@
 package com.vcc.bigdata.platform.cassandra;
 
 import com.datastax.driver.core.Session;
-import com.vcc.bigdata.common.config.Properties;
+import com.agraphdb.common.config.Properties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
