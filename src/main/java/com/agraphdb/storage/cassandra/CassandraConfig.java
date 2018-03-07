@@ -1,4 +1,4 @@
-package com.vcc.bigdata.platform.cassandra;
+package com.agraphdb.storage.cassandra;
 
 import com.google.common.net.HostAndPort;
 import com.agraphdb.common.config.Properties;

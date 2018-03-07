@@ -1,4 +1,4 @@
-package com.vcc.bigdata.platform.hbase;
+package com.agraphdb.storage.hbase;
 
 import com.google.common.util.concurrent.Futures;
 import com.agraphdb.common.config.Properties;

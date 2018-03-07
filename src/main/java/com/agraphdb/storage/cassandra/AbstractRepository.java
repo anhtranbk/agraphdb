@@ -1,4 +1,4 @@
-package com.vcc.bigdata.platform.cassandra;
+package com.agraphdb.storage.cassandra;
 
 import com.datastax.driver.core.Session;
 import com.agraphdb.common.config.Properties;

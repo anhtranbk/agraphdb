@@ -15,7 +15,7 @@ import com.agraphdb.common.utils.Maps;
 import com.agraphdb.common.utils.Utils;
 import com.agraphdb.core.Vertex;
 import com.agraphdb.core.repository.VertexRepository;
-import com.vcc.bigdata.platform.cassandra.AbstractRepository;
+import com.agraphdb.storage.cassandra.AbstractRepository;
 
 import java.util.ArrayList;
 import java.util.Collection;

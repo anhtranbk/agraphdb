@@ -1,4 +1,4 @@
-package com.vcc.bigdata.platform.hbase;
+package com.agraphdb.storage.hbase;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;

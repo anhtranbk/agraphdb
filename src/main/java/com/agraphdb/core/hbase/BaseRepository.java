@@ -1,7 +1,7 @@
 package com.agraphdb.core.hbase;
 
 import com.agraphdb.common.config.Properties;
-import com.vcc.bigdata.platform.hbase.AbstractRepository;
+import com.agraphdb.storage.hbase.AbstractRepository;
 import org.apache.hadoop.hbase.TableName;
 
 /**

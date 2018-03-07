@@ -1,7 +1,7 @@
 package com.agraphdb.core.hbase;
 
 import com.agraphdb.core.Direction;
-import com.vcc.bigdata.platform.hbase.HBaseUtils;
+import com.agraphdb.storage.hbase.HBaseUtils;
 import org.apache.hadoop.hbase.util.Bytes;
 
 import java.nio.ByteBuffer;

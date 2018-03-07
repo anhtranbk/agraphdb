@@ -1,4 +1,4 @@
-package com.vcc.bigdata.platform.hbase;
+package com.agraphdb.storage.hbase;
 
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.client.Result;

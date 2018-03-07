@@ -1,4 +1,4 @@
-package com.vcc.bigdata.platform.cassandra;
+package com.agraphdb.storage.cassandra;
 
 import com.datastax.driver.core.Cluster;
 import com.datastax.driver.core.ConsistencyLevel;

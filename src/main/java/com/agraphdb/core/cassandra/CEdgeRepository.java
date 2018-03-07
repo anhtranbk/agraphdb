@@ -14,7 +14,7 @@ import com.agraphdb.core.Direction;
 import com.agraphdb.core.Edge;
 import com.agraphdb.core.Vertex;
 import com.agraphdb.core.repository.EdgeRepository;
-import com.vcc.bigdata.platform.cassandra.AbstractRepository;
+import com.agraphdb.storage.cassandra.AbstractRepository;
 
 import java.util.Collection;
 import java.util.Collections;

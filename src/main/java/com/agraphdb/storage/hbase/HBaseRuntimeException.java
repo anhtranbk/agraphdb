@@ -1,4 +1,4 @@
-package com.vcc.bigdata.platform.hbase;
+package com.agraphdb.storage.hbase;
 
 /**
  * TODO: Class description here.
