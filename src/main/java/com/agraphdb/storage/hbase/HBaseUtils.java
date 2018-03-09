@@ -1,5 +1,6 @@
 package com.agraphdb.storage.hbase;
 
+import com.agraphdb.common.utils.Strings;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.Scan;
@@ -279,7 +280,7 @@ public class HBaseUtils {
      * @return new key salted with bucket
      */
     public static byte[] buildCompositeKeyWithBucket(int maxBucket, String seed, byte[]... keys) {
-        byte[] bucket = String.valueOf(Math.abs(seed.hashCode() % maxBucket)).getBytes();
+        byte[] bucket = generateBucket(maxBucket, seed).getBytes();
         byte[] key = HBaseUtils.createCompositeKey(keys);
 
         ByteBuffer buff = ByteBuffer.allocate(bucket.length + key.length + 1);
@@ -299,5 +300,10 @@ public class HBaseUtils {
      */
     public static byte[] buildCompositeKeyWithBucket(String seed, byte[]... keys) {
         return buildCompositeKeyWithBucket(DEFAULT_MAX_BUCKET, seed, keys);
+    }
+
+    public static String generateBucket(int maxBucket, String seed) {
+        int bucket = Math.abs(seed.hashCode() % maxBucket);
+        return Strings.format("%03d", bucket);
     }
 }
