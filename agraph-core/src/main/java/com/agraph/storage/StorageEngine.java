@@ -4,8 +4,8 @@ import com.agraph.AGraph;
 import com.agraph.AGraphEdge;
 import com.agraph.AGraphVertex;
 import com.agraph.common.tuple.Tuple3;
-import com.agraph.internal.EdgeId;
-import com.agraph.internal.VertexId;
+import com.agraph.core.internal.EdgeId;
+import com.agraph.core.internal.VertexId;
 import org.apache.tinkerpop.gremlin.structure.Direction;
 
 import java.util.Iterator;

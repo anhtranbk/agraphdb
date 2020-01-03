@@ -1,8 +1,8 @@
 package com.agraph;
 
-import com.agraph.tinkerpop.AGraphFeatures;
-import com.agraph.tinkerpop.AGraphVariables;
-import com.agraph.transaction.TransactionBuilder;
+import com.agraph.core.tinkerpop.AGraphFeatures;
+import com.agraph.core.tinkerpop.AGraphVariables;
+import com.agraph.core.transaction.TransactionBuilder;
 import org.apache.tinkerpop.gremlin.process.computer.GraphComputer;
 import org.apache.tinkerpop.gremlin.structure.Graph;
 

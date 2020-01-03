@@ -1,4 +1,4 @@
-package com.agraph.tinkerpop;
+package com.agraph.core.tinkerpop;
 
 import org.apache.tinkerpop.gremlin.structure.Graph;
 

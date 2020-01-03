@@ -1,4 +1,4 @@
-package com.agraph.internal;
+package com.agraph.core.internal;
 
 public interface InternalElement {
 

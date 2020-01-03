@@ -1,4 +1,4 @@
-package com.agraph.internal;
+package com.agraph.core.internal;
 
 import com.agraph.v1.Direction;
 import com.agraph.v1.Vertex;

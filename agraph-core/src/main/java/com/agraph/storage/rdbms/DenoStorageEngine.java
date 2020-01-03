@@ -3,8 +3,8 @@ package com.agraph.storage.rdbms;
 import com.agraph.AGraph;
 import com.agraph.AGraphEdge;
 import com.agraph.AGraphVertex;
-import com.agraph.internal.EdgeId;
-import com.agraph.internal.VertexId;
+import com.agraph.core.internal.EdgeId;
+import com.agraph.core.internal.VertexId;
 import com.agraph.storage.StorageBackend;
 import org.apache.tinkerpop.gremlin.structure.Direction;
 

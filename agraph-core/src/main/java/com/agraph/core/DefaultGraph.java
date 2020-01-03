@@ -1,7 +1,7 @@
 package com.agraph.core;
 
 import com.agraph.AGraphTransaction;
-import com.agraph.transaction.TransactionBuilder;
+import com.agraph.core.transaction.TransactionBuilder;
 
 public class DefaultGraph extends TinkerBaseGraph {
 
