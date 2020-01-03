@@ -21,7 +21,7 @@
     <module>agraph-cassandra</module>
     <module>agraph-hbase</module>
     <module>agraph-examples</module>
-<!--    <module>agraph-db2</module>-->
+    <!--    <module>agraph-db2</module>-->
   </modules>
 
   <dependencies>
@@ -88,5 +88,21 @@
         </plugin>
       </plugins>
     </pluginManagement>
+    <plugins>
+      <plugin>
+        <artifactId>maven-assembly-plugin</artifactId>
+        <version>3.2.0</version>
+        <configuration>
+          <archive>
+            <manifest>
+              <mainClass>com.agraph.examples.App</mainClass>
+            </manifest>
+          </archive>
+          <descriptorRefs>
+            <descriptorRef>jar-with-dependencies</descriptorRef>
+          </descriptorRefs>
+        </configuration>
+      </plugin>
+    </plugins>
   </build>
 </project>
