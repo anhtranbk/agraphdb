@@ -1,8 +1,8 @@
 package com.agraph.common.concurrency;
 
-import com.agraph.common.config.Properties;
 import com.agraph.common.lifecycle.AbstractLifeCycle;
 import com.agraph.common.utils.Threads;
+import com.agraph.config.Config;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -24,10 +24,10 @@ public class FutureMonitor extends AbstractLifeCycle {
     private final ScheduledExecutorService scheduledExecutor;
     private final long initialDelay, delay;
 
-    public FutureMonitor(Properties p) {
+    public FutureMonitor(Config config) {
         scheduledExecutor = Executors.newSingleThreadScheduledExecutor();
-        initialDelay = p.getLongProperty("future_monitor.initial.delay.ms", 100);
-        delay = p.getLongProperty("future_monitor.delay.ms",  500);
+        initialDelay = config.getLong("future_monitor.initial.delay.ms", 100);
+        delay = config.getLong("future_monitor.delay.ms",  500);
     }
 
     @Override

@@ -12,6 +12,17 @@ import java.util.Date;
  */
 public class DateTimes {
 
+    public static final String ISO_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
+
+    public static Date parseFromIsoFormat(String source) {
+        return parse(source, ISO_FORMAT);
+    }
+
+    public static String toIsoFormat(Date date) {
+        DateFormat df = new SimpleDateFormat(ISO_FORMAT);
+        return df.format(date);
+    }
+
     public static Date parse(String source, String format) {
         try {
             DateFormat df = new SimpleDateFormat(format);
@@ -19,11 +30,6 @@ public class DateTimes {
         } catch (Exception e) {
             return null;
         }
-    }
-
-    public static String toIsoFormat(Date date) {
-        DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
-        return df.format(date);
     }
 
     public static String format(Date date, String format) {

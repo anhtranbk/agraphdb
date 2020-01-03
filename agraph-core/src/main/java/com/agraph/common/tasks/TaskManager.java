@@ -1,7 +1,7 @@
 package com.agraph.common.tasks;
 
-import com.agraph.common.config.Properties;
 import com.agraph.common.utils.Threads;
+import com.agraph.config.Config;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,8 +23,8 @@ public class TaskManager {
     private final AtomicInteger errorCounter = new AtomicInteger();
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    public TaskManager(Properties p, ExecutorService executor) {
-        this(p.getIntProperty("task_manager.error.threshold", 100), executor);
+    public TaskManager(Config config, ExecutorService executor) {
+        this(config.getInt("task_manager.error.threshold", 100), executor);
     }
 
     public TaskManager(int errorThreshold) {

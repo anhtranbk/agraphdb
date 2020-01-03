@@ -1,7 +1,7 @@
 package com.agraph.common.lifecycle;
 
-import com.agraph.common.config.Properties;
 import com.agraph.common.utils.Threads;
+import com.agraph.config.Config;
 
 import java.util.concurrent.TimeUnit;
 
@@ -23,9 +23,8 @@ public abstract class LoopableLifeCycle extends AbstractLifeCycle {
         setSleepTime(60, 30);
     }
 
-    public LoopableLifeCycle(Properties p) {
-        this(p.getLongProperty("lifecycle.loop.done.sleep.s", 60),
-                p.getLongProperty("lifecycle.loop.fail.sleep.s", 30));
+    public LoopableLifeCycle(Config config) {
+        setSleepTime(config);
     }
 
     @Override
@@ -49,9 +48,9 @@ public abstract class LoopableLifeCycle extends AbstractLifeCycle {
         this.sleepAfterFail = sleepAfterFail;
     }
 
-    protected void setSleepTime(Properties p) {
-        this.sleepAfterDone = p.getLongProperty("lifecycle.loop.done.sleep.s", 60);
-        this.sleepAfterFail = p.getLongProperty("lifecycle.loop.fail.sleep.s", 30);
+    protected void setSleepTime(Config config) {
+        this.sleepAfterDone = config.getLong("lifecycle.loop.done.sleep.s", 60);
+        this.sleepAfterFail = config.getLong("lifecycle.loop.fail.sleep.s", 30);
     }
 
     protected abstract void onLoop() throws Exception;

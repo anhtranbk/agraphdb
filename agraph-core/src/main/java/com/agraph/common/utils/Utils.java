@@ -1,7 +1,5 @@
 package com.agraph.common.utils;
 
-import com.agraph.common.config.Properties;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileWriter;
@@ -16,16 +14,12 @@ import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
-/**
- * TODO: Class description here.
- *
- * @author <a href="https://github.com/tjeubaoit">tjeubaoit</a>
- */
 public class Utils {
 
     @SuppressWarnings("unchecked")
