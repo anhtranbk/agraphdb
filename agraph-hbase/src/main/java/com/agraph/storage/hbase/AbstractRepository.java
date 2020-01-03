@@ -1,7 +1,7 @@
 package com.agraph.storage.hbase;
 
+import com.agraph.config.Config;
 import com.google.common.util.concurrent.Futures;
-import com.agraph.common.config.Properties;
 import com.agraph.common.utils.ThreadPool;
 import org.apache.hadoop.hbase.HColumnDescriptor;
 import org.apache.hadoop.hbase.HTableDescriptor;
@@ -27,9 +27,9 @@ public abstract class AbstractRepository implements Closeable {
     protected final Connection connection;
     private final boolean asyncMode;
 
-    public AbstractRepository(Properties props) {
+    public AbstractRepository(Config conf) {
         this.connection = HBaseConnectionProvider.getDefault(HBaseConfig.loadConfig());
-        this.asyncMode = props.getBoolProperty("hbase.client.async.mode", false);
+        this.asyncMode = conf.getBool("hbase.client.async.mode", false);
     }
 
     protected void createTablesIfNotExists(byte[] family, TableName... names) {
@@ -75,11 +75,11 @@ public abstract class AbstractRepository implements Closeable {
         }
     }
 
-    protected static ExecutorService initInternalThreadPool(Properties p) {
+    protected static ExecutorService initInternalThreadPool(Config conf) {
         return ThreadPool.builder()
-                .setCoreSize(p.getIntProperty("hbase.client.threadpool.core.size",
+                .setCoreSize(conf.getInt("hbase.client.threadpool.core.size",
                         Runtime.getRuntime().availableProcessors()))
-                .setQueueSize(p.getIntProperty("hbase.client.threadpool.queue.size", 512))
+                .setQueueSize(conf.getInt("hbase.client.threadpool.queue.size", 512))
                 .setNamePrefix("HBaseClient-pool-worker")
                 .setDaemon(true)
                 .build();

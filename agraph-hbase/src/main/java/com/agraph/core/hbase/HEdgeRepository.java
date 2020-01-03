@@ -1,16 +1,16 @@
 package com.agraph.core.hbase;
 
+import com.agraph.config.Config;
 import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.agraph.common.concurrency.FutureAdapter;
-import com.agraph.common.config.Properties;
 import com.agraph.common.utils.IterableAdapter;
 import com.agraph.common.utils.Strings;
 import com.agraph.common.utils.Utils;
-import com.agraph.core.Direction;
-import com.agraph.core.Edge;
-import com.agraph.core.Vertex;
-import com.agraph.core.repository.EdgeRepository;
+import com.agraph.v1.Direction;
+import com.agraph.v1.Edge;
+import com.agraph.v1.Vertex;
+import com.agraph.v1.repository.EdgeRepository;
 import com.agraph.storage.hbase.HBaseRuntimeException;
 import com.agraph.storage.hbase.HBaseUtils;
 import org.apache.hadoop.hbase.client.Delete;
@@ -37,8 +37,8 @@ import java.util.concurrent.Future;
  */
 public class HEdgeRepository extends BaseRepository implements EdgeRepository {
 
-    public HEdgeRepository(Properties props) {
-        super(props);
+    public HEdgeRepository(Config conf) {
+        super(conf);
     }
 
     @Override

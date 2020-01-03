@@ -1,5 +1,6 @@
 package com.agraph.core.cassandra;
 
+import com.agraph.config.Config;
 import com.datastax.driver.core.BatchStatement;
 import com.datastax.driver.core.PreparedStatement;
 import com.datastax.driver.core.ResultSet;
@@ -8,13 +9,12 @@ import com.datastax.driver.core.Row;
 import com.google.common.collect.Iterables;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.agraph.common.concurrency.FutureAdapter;
-import com.agraph.common.config.Properties;
 import com.agraph.common.utils.DateTimes;
 import com.agraph.common.utils.IterableAdapter;
 import com.agraph.common.utils.Maps;
 import com.agraph.common.utils.Utils;
-import com.agraph.core.Vertex;
-import com.agraph.core.repository.VertexRepository;
+import com.agraph.v1.Vertex;
+import com.agraph.v1.repository.VertexRepository;
 import com.agraph.storage.cassandra.AbstractRepository;
 
 import java.util.ArrayList;
@@ -35,8 +35,8 @@ public class CVertexRepository extends AbstractRepository implements VertexRepos
     private static final AtomicBoolean statementPrepared = new AtomicBoolean(false);
     private static PreparedStatement psInsert, psUpdateDt, psDelete;
 
-    public CVertexRepository(Properties props) {
-        super(props);
+    public CVertexRepository(Config conf) {
+        super(conf);
         if (statementPrepared.compareAndSet(false, true)) {
             psUpdateDt = session.prepare(
                     "UPDATE vertices SET ts = ?, p = p + ? WHERE salt = ? AND label = ? AND id = ?");

@@ -1,7 +1,7 @@
 package com.agraph.storage.cassandra;
 
+import com.agraph.config.Config;
 import com.datastax.driver.core.Session;
-import com.agraph.common.config.Properties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -15,13 +15,13 @@ import java.io.Closeable;
 public abstract class AbstractRepository implements Closeable {
 
     protected final Session session;
-    protected final Properties props;
+    protected final Config conf;
     protected final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    public AbstractRepository(Properties props) {
-        CassandraConfig conf = new CassandraConfig(props);
-        this.session = createSession(conf);
-        this.props = props;
+    public AbstractRepository(Config conf) {
+        CassandraConfig cassandraConfig = new CassandraConfig(conf);
+        this.session = createSession(cassandraConfig);
+        this.conf = conf;
     }
 
     @Override

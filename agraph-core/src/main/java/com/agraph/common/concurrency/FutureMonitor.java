@@ -24,10 +24,10 @@ public class FutureMonitor extends AbstractLifeCycle {
     private final ScheduledExecutorService scheduledExecutor;
     private final long initialDelay, delay;
 
-    public FutureMonitor(Config config) {
+    public FutureMonitor(Config conf) {
         scheduledExecutor = Executors.newSingleThreadScheduledExecutor();
-        initialDelay = config.getLong("future_monitor.initial.delay.ms", 100);
-        delay = config.getLong("future_monitor.delay.ms",  500);
+        initialDelay = conf.getLong("future_monitor.initial.delay.ms", 100);
+        delay = conf.getLong("future_monitor.delay.ms",  500);
     }
 
     @Override

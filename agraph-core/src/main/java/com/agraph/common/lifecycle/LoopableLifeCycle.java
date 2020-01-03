@@ -23,8 +23,8 @@ public abstract class LoopableLifeCycle extends AbstractLifeCycle {
         setSleepTime(60, 30);
     }
 
-    public LoopableLifeCycle(Config config) {
-        setSleepTime(config);
+    public LoopableLifeCycle(Config conf) {
+        setSleepTime(conf);
     }
 
     @Override
@@ -48,9 +48,9 @@ public abstract class LoopableLifeCycle extends AbstractLifeCycle {
         this.sleepAfterFail = sleepAfterFail;
     }
 
-    protected void setSleepTime(Config config) {
-        this.sleepAfterDone = config.getLong("lifecycle.loop.done.sleep.s", 60);
-        this.sleepAfterFail = config.getLong("lifecycle.loop.fail.sleep.s", 30);
+    protected void setSleepTime(Config conf) {
+        this.sleepAfterDone = conf.getLong("lifecycle.loop.done.sleep.s", 60);
+        this.sleepAfterFail = conf.getLong("lifecycle.loop.fail.sleep.s", 30);
     }
 
     protected abstract void onLoop() throws Exception;

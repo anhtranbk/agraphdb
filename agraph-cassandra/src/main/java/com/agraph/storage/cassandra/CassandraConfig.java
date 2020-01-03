@@ -1,27 +1,23 @@
 package com.agraph.storage.cassandra;
 
+import com.agraph.config.Config;
 import com.google.common.net.HostAndPort;
-import com.agraph.common.config.Properties;
 
 import java.util.Collection;
 import java.util.LinkedHashSet;
 
-/**
- * TODO: Class description here.
- *
- * @author <a href="https://github.com/tjeubaoit">tjeubaoit</a>
- */
+@SuppressWarnings("UnstableApiUsage")
 public class CassandraConfig {
 
     private final Collection<HostAndPort> hosts = new LinkedHashSet<>();
     private String clusterName;
     private String keyspace;
 
-    public CassandraConfig(Properties p) {
-        Collection<String> addresses = p.getCollection("cassandra.hosts");
+    public CassandraConfig(Config conf) {
+        Collection<String> addresses = conf.getCollection("cassandra.hosts");
         addresses.forEach(addr -> hosts.add(HostAndPort.fromString(addr)));
-        this.clusterName = p.getProperty("cassandra.cluster.name");
-        this.keyspace = p.getProperty("cassandra.keyspace");
+        this.clusterName = conf.getString("cassandra.cluster.name");
+        this.keyspace = conf.getString("cassandra.keyspace");
     }
 
     public Collection<HostAndPort> getHosts() {

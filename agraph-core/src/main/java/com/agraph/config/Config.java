@@ -25,7 +25,6 @@ import java.util.TreeSet;
  *
  * @author <a href="https://github.com/tjeubaoit">tjeubaoit</a>
  */
-@SuppressWarnings("unchecked")
 public class Config {
 
     private static final String LIST_DELIMITER = ",";

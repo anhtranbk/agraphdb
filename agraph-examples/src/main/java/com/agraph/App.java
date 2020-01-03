@@ -1,9 +1,9 @@
 package com.agraph;
 
-import com.agraph.common.config.Configuration;
-import com.agraph.core.GraphDatabase;
-import com.agraph.core.GraphSession;
-import com.agraph.core.Vertex;
+import com.agraph.config.Config;
+import com.agraph.v1.GraphDatabase;
+import com.agraph.v1.GraphSession;
+import com.agraph.v1.Vertex;
 
 /**
  * Hello world!
@@ -11,7 +11,7 @@ import com.agraph.core.Vertex;
 public class App {
 
     public static void main(String[] args) throws Exception {
-        GraphSession session = GraphDatabase.open(new Configuration());
+        GraphSession session = GraphDatabase.open(new Config());
         Vertex v1 = session.addVertex("1", "test").get().first();
         Vertex v2 = session.addVertex("2", "test").get().first();
         session.addEdge("wtf", v1, v2);

@@ -1,19 +1,19 @@
 package com.agraph.core.cassandra;
 
+import com.agraph.config.Config;
 import com.datastax.driver.core.BatchStatement;
 import com.datastax.driver.core.PreparedStatement;
 import com.datastax.driver.core.ResultSet;
 import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.agraph.common.concurrency.FutureAdapter;
-import com.agraph.common.config.Properties;
 import com.agraph.common.utils.IterableAdapter;
 import com.agraph.common.utils.Maps;
 import com.agraph.common.utils.Utils;
-import com.agraph.core.Direction;
-import com.agraph.core.Edge;
-import com.agraph.core.Vertex;
-import com.agraph.core.repository.EdgeRepository;
+import com.agraph.v1.Direction;
+import com.agraph.v1.Edge;
+import com.agraph.v1.Vertex;
+import com.agraph.v1.repository.EdgeRepository;
 import com.agraph.storage.cassandra.AbstractRepository;
 
 import java.util.Collection;
@@ -34,8 +34,8 @@ public class CEdgeRepository extends AbstractRepository implements EdgeRepositor
     private static final AtomicBoolean statementPrepared = new AtomicBoolean(false);
     private static PreparedStatement psUpdate, psDelete;
 
-    public CEdgeRepository(Properties props) {
-        super(props);
+    public CEdgeRepository(Config conf) {
+        super(conf);
         if (statementPrepared.compareAndSet(false, true)) {
             psUpdate = session.prepare("UPDATE edges SET dstlb = ?, p = p + ? " +
                     "WHERE srclb = ? AND srcid = ? AND d = ? AND label = ? AND dstid = ?");

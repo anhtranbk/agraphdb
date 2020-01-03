@@ -1,15 +1,15 @@
 package com.agraph.core.hbase;
 
+import com.agraph.config.Config;
 import com.google.common.collect.Iterables;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.agraph.common.concurrency.FutureAdapter;
-import com.agraph.common.config.Properties;
 import com.agraph.common.utils.DateTimes;
 import com.agraph.common.utils.IterableAdapter;
 import com.agraph.common.utils.Strings;
 import com.agraph.common.utils.Utils;
-import com.agraph.core.Vertex;
-import com.agraph.core.repository.VertexRepository;
+import com.agraph.v1.Vertex;
+import com.agraph.v1.repository.VertexRepository;
 import com.agraph.storage.hbase.HBaseRuntimeException;
 import com.agraph.storage.hbase.HBaseUtils;
 import org.apache.hadoop.hbase.client.Delete;
@@ -37,8 +37,8 @@ import java.util.concurrent.Future;
  */
 public class HVertexRepository extends BaseRepository implements VertexRepository {
 
-    public HVertexRepository(Properties props) {
-        super(props);
+    public HVertexRepository(Config conf) {
+        super(conf);
     }
 
     @Override

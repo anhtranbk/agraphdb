@@ -2,11 +2,6 @@ package com.agraph.common.utils;
 
 import java.lang.reflect.InvocationTargetException;
 
-/**
- * TODO: Class description here.
- *
- * @author <a href="https://github.com/tjeubaoit">tjeubaoit</a>
- */
 @SuppressWarnings("unchecked")
 public class Reflects {
 

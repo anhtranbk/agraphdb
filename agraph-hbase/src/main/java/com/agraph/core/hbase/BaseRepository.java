@@ -1,6 +1,6 @@
 package com.agraph.core.hbase;
 
-import com.agraph.common.config.Properties;
+import com.agraph.config.Config;
 import com.agraph.storage.hbase.AbstractRepository;
 import org.apache.hadoop.hbase.TableName;
 
@@ -14,9 +14,9 @@ public class BaseRepository extends AbstractRepository {
     protected static final String DEFAULT_NAMESPACE = "default";
     private final String namespace;
 
-    public BaseRepository(Properties props) {
-        super(props);
-        this.namespace = props.getProperty("graphdb.namespace", DEFAULT_NAMESPACE);
+    public BaseRepository(Config conf) {
+        super(conf);
+        this.namespace = conf.getString("graphdb.namespace", DEFAULT_NAMESPACE);
     }
 
     protected final TableName getTableName(String name) {
