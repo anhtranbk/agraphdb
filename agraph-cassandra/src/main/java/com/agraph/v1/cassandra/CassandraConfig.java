@@ -1,4 +1,4 @@
-package com.agraph.storage.cassandra;
+package com.agraph.v1.cassandra;
 
 import com.agraph.config.Config;
 import com.google.common.net.HostAndPort;

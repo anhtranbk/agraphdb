@@ -1,7 +1,6 @@
-package com.agraph.core.hbase;
+package com.agraph.v1.hbase;
 
 import com.agraph.config.Config;
-import com.agraph.storage.hbase.AbstractRepository;
 import org.apache.hadoop.hbase.TableName;
 
 /**

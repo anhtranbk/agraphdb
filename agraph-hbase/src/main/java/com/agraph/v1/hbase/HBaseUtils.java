@@ -1,4 +1,4 @@
-package com.agraph.storage.hbase;
+package com.agraph.v1.hbase;
 
 import com.agraph.common.utils.Strings;
 import org.apache.hadoop.hbase.client.Put;

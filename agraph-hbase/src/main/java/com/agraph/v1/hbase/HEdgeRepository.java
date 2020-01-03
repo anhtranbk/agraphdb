@@ -1,4 +1,4 @@
-package com.agraph.core.hbase;
+package com.agraph.v1.hbase;
 
 import com.agraph.config.Config;
 import com.google.common.base.Preconditions;
@@ -11,8 +11,6 @@ import com.agraph.v1.Direction;
 import com.agraph.v1.Edge;
 import com.agraph.v1.Vertex;
 import com.agraph.v1.repository.EdgeRepository;
-import com.agraph.storage.hbase.HBaseRuntimeException;
-import com.agraph.storage.hbase.HBaseUtils;
 import org.apache.hadoop.hbase.client.Delete;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.client.ResultScanner;

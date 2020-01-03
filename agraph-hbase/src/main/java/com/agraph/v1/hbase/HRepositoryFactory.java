@@ -1,4 +1,4 @@
-package com.agraph.core.cassandra;
+package com.agraph.v1.hbase;
 
 import com.agraph.config.Config;
 import com.google.common.base.Preconditions;
@@ -11,20 +11,20 @@ import com.agraph.v1.repository.VertexRepository;
  *
  * @author <a href="https://github.com/tjeubaoit">tjeubaoit</a>
  */
-public class CRepositoryFactory implements RepositoryFactory {
+public class HRepositoryFactory implements RepositoryFactory {
 
     private Config conf;
 
     @Override
     public EdgeRepository edgeRepository() {
         Preconditions.checkNotNull(conf, "Repository Factory must be configure first");
-        return new CEdgeRepository(conf);
+        return new HEdgeRepository(conf);
     }
 
     @Override
     public VertexRepository vertexRepository() {
         Preconditions.checkNotNull(conf, "Repository Factory must be configure first");
-        return new CVertexRepository(conf);
+        return new HVertexRepository(conf);
     }
 
     @Override

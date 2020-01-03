@@ -1,4 +1,4 @@
-package com.agraph.storage.hbase;
+package com.agraph.v1.hbase;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.client.Connection;

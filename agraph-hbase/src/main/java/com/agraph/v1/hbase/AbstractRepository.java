@@ -1,4 +1,4 @@
-package com.agraph.storage.hbase;
+package com.agraph.v1.hbase;
 
 import com.agraph.config.Config;
 import com.google.common.util.concurrent.Futures;

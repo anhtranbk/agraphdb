@@ -1,4 +1,4 @@
-package com.agraph.core.hbase;
+package com.agraph.v1.hbase;
 
 /**
  * TODO: Class description here.

@@ -1,4 +1,4 @@
-package com.agraph.core.cassandra;
+package com.agraph.v1.cassandra;
 
 import com.agraph.config.Config;
 import com.datastax.driver.core.BatchStatement;
@@ -14,7 +14,6 @@ import com.agraph.v1.Direction;
 import com.agraph.v1.Edge;
 import com.agraph.v1.Vertex;
 import com.agraph.v1.repository.EdgeRepository;
-import com.agraph.storage.cassandra.AbstractRepository;
 
 import java.util.Collection;
 import java.util.Collections;

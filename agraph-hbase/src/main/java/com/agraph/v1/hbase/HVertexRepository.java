@@ -1,4 +1,4 @@
-package com.agraph.core.hbase;
+package com.agraph.v1.hbase;
 
 import com.agraph.config.Config;
 import com.google.common.collect.Iterables;
@@ -10,8 +10,6 @@ import com.agraph.common.utils.Strings;
 import com.agraph.common.utils.Utils;
 import com.agraph.v1.Vertex;
 import com.agraph.v1.repository.VertexRepository;
-import com.agraph.storage.hbase.HBaseRuntimeException;
-import com.agraph.storage.hbase.HBaseUtils;
 import org.apache.hadoop.hbase.client.Delete;
 import org.apache.hadoop.hbase.client.Get;
 import org.apache.hadoop.hbase.client.Put;

@@ -1,4 +1,4 @@
-package com.agraph.storage.cassandra;
+package com.agraph.v1.cassandra;
 
 import com.datastax.driver.core.Row;
 import com.google.common.collect.ImmutableMap;

@@ -1,4 +1,4 @@
-package com.agraph.storage.hbase;
+package com.agraph.v1.hbase;
 
 /**
  * TODO: Class description here.

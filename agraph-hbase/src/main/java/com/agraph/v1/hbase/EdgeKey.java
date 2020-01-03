@@ -1,7 +1,6 @@
-package com.agraph.core.hbase;
+package com.agraph.v1.hbase;
 
 import com.agraph.v1.Direction;
-import com.agraph.storage.hbase.HBaseUtils;
 import org.apache.hadoop.hbase.util.Bytes;
 
 import java.nio.ByteBuffer;
