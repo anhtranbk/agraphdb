@@ -2,6 +2,7 @@ package com.agraph.config;
 
 import com.agraph.common.utils.DateTimes;
 import com.agraph.common.utils.Strings;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -13,10 +14,8 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.TreeSet;
@@ -27,7 +26,7 @@ import java.util.TreeSet;
  * @author <a href="https://github.com/tjeubaoit">tjeubaoit</a>
  */
 @SuppressWarnings("unchecked")
-public class Config extends Properties {
+public class Config {
 
     private static final String LIST_DELIMITER = ",";
     private static final String CONF_ENV = "agraph.conf";
@@ -54,6 +53,8 @@ public class Config extends Properties {
         }
     }
 
+    private final Properties inst = new Properties(defaultProps);
+
     public Config() {
         this(defaultResPath);
     }
@@ -75,16 +76,16 @@ public class Config extends Properties {
         }
     }
 
-    public void addResource(InputStream is) throws IOException {
-        this.addResource(is, false);
-    }
-
     public void addResource(InputStream is, boolean closeAfterLoad) throws IOException {
         try {
-            this.load(is);
+            inst.load(is);
         } finally {
             if (closeAfterLoad) is.close();
         }
+    }
+
+    public void addResource(InputStream is) throws IOException {
+        this.addResource(is, false);
     }
 
     public void addResource(String path) throws IOException {
@@ -93,8 +94,8 @@ public class Config extends Properties {
         }
     }
 
-    public <T> void set(String key, T val) {
-        setProperty(key, val.toString());
+    public <T> void set(String key, @NotNull T val) {
+        inst.setProperty(key, val.toString());
     }
 
     public void setDateTime(String key, Date date) {
@@ -102,7 +103,7 @@ public class Config extends Properties {
     }
 
     public void setDateTime(String key, Date date, String format) {
-        setProperty(key, DateTimes.format(date, format));
+        inst.setProperty(key, DateTimes.format(date, format));
     }
 
     public void setCollection(String key, String... elements) {
@@ -110,11 +111,11 @@ public class Config extends Properties {
     }
 
     public void setCollection(String key, Iterable<String> list) {
-        setProperty(key, Strings.join(list, LIST_DELIMITER));
+        inst.setProperty(key, Strings.join(list, LIST_DELIMITER));
     }
 
     public void setClass(String key, Class<?> cls) {
-        setProperty(key, cls.getName());
+        inst.setProperty(key, cls.getName());
     }
 
     public void setClasses(String key, Class<?>... classes) {
@@ -129,18 +130,12 @@ public class Config extends Properties {
         setCollection(key, clsNames);
     }
 
-    @Override
-    public String getProperty(String key) {
-        String value = super.getProperty(key);
-        return (value != null) ? value : defaultProps.getProperty(key);
+    public String getString(String key) {
+        return getProperty(key);
     }
 
-    public <T> T get(String key, T defVal) {
-        try {
-            return (T) get(key);
-        } catch (Exception ignored) {
-            return defVal;
-        }
+    public String getString(String key, String defVal) {
+        return getProperty(key, defVal);
     }
 
     public int getInt(String key, int defVal) {
@@ -219,6 +214,10 @@ public class Config extends Properties {
         }
     }
 
+    public Class<?> getClass(String key) {
+        return getClass(key, null);
+    }
+
     public Collection<Class<?>> getClasses(String key) throws ClassNotFoundException {
         Collection<String> clsNames = getCollection(key);
         List<Class<?>> classes = new ArrayList<>(clsNames.size());
@@ -228,18 +227,14 @@ public class Config extends Properties {
         return classes;
     }
 
-    public Map<String, Object> asMap() {
-        Map<String, Object> map = new HashMap<>();
-        for (Object key : keySet()) {
-            map.put(key.toString(), this.get(key));
-        }
-        return map;
+    public Properties toProperties() {
+        return new Properties(inst);
     }
 
     @Override
     public synchronized String toString() {
         Set<Object> keySet = new TreeSet<>();
-        keySet.addAll(this.keySet());
+        keySet.addAll(inst.keySet());
         keySet.addAll(defaultProps.keySet());
 
         List<Object> list = new ArrayList<>(keySet);
@@ -249,5 +244,13 @@ public class Config extends Properties {
         list.forEach(key -> sb.append(String.format(Locale.US, "\t%s = %s\n",
                 key.toString(), getProperty(key.toString(), ""))));
         return sb.toString();
+    }
+
+    protected String getProperty(String key) {
+        return inst.getProperty(key);
+    }
+
+    protected String getProperty(String key, String defVal) {
+        return inst.getProperty(key, defVal);
     }
 }

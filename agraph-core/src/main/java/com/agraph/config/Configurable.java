@@ -40,7 +40,7 @@ public interface Configurable {
                 } else if (type.isAssignableFrom(Collection.class)) {
                     field.set(this, config.getCollection(name, descriptor.collectionDelimiter()));
                 } else {
-                    field.set(this, config.get(name, defVal));
+                    field.set(this, config.getString(name, defVal));
                 }
             } catch (Exception e) {
                 throw new ConfigException(e);
