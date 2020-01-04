@@ -80,7 +80,7 @@ public class ThreadPool {
                     ? new LinkedBlockingQueue<>()
                     : new ArrayBlockingQueue<>(queueSize);
             if (threadFactory == null) {
-                threadFactory = new DataCollectionThreadFactory(namePrefix, daemon);
+                threadFactory = new DefaultThreadFactory(namePrefix, daemon);
             }
             return new ThreadPoolExecutor(coreSize,
                     maxSize,
@@ -91,13 +91,13 @@ public class ThreadPool {
         }
     }
 
-    static class DataCollectionThreadFactory implements ThreadFactory {
+    static class DefaultThreadFactory implements ThreadFactory {
 
         private final AtomicInteger threadNumber = new AtomicInteger(1);
         private final String namePrefix;
         private final boolean daemon;
 
-        DataCollectionThreadFactory(String prefix, boolean daemon) {
+        DefaultThreadFactory(String prefix, boolean daemon) {
             this.namePrefix = prefix + "-";
             this.daemon = daemon;
         }

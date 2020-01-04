@@ -5,7 +5,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Iterator;
 
 /**
- * Convert an iterable object to new an iterable object with different item type
+ * Convert an iterable/iterator object to new an iterable object with different element type
  *
  * @author <a href="https://github.com/tjeubaoit">tjeubaoit</a>
  */
@@ -40,12 +40,21 @@ public abstract class IterableAdapter<S, R> implements Iterable<R> {
 
     protected abstract R convert(S source);
 
-    public static <S, R> IterableAdapter<S, R> from(Iterable<S> source, Converter<S, R> converter) {
-        return new IterableAdapter<S, R>(source) {
+    public static <S, R> Iterable<R> from(Iterable<S> iterable, Converter<S, R> converter) {
+        return new IterableAdapter<S, R>(iterable) {
             @Override
             protected R convert(S source) {
                 return converter.convert(source);
             }
         };
+    }
+
+    public static <S, R> Iterator<R> from(Iterator<S> iterator, Converter<S, R> converter) {
+        return new IterableAdapter<S, R>(iterator) {
+            @Override
+            protected R convert(S source) {
+                return converter.convert(source);
+            }
+        }.iterator();
     }
 }

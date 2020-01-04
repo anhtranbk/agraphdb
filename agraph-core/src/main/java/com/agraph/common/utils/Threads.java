@@ -33,7 +33,7 @@ public class Threads {
     public static ExecutorService newThreadPool(int coreSize, int maxSize, int queueSize,
                                                 String prefix, boolean daemon) {
         return newThreadPool(coreSize, maxSize, queueSize,
-                new ThreadPool.DataCollectionThreadFactory(prefix, daemon));
+                new ThreadPool.DefaultThreadFactory(prefix, daemon));
     }
 
     @Deprecated

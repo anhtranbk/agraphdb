@@ -59,7 +59,7 @@ public class FutureAdapter<S, R> implements ListenableFuture<R> {
     @Override
     public void addListener(@NotNull Runnable runnable, @NotNull Executor executor) {
         if (src instanceof ListenableFuture) {
-            ((ListenableFuture) src).addListener(runnable, executor);
+            ((ListenableFuture<S>) src).addListener(runnable, executor);
         } else {
             executor.execute(() -> {
                 try {
