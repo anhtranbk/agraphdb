@@ -1,19 +1,18 @@
 package com.agraph.storage;
 
-import com.agraph.AGraph;
 import com.agraph.AGraphEdge;
 import com.agraph.AGraphVertex;
-import com.agraph.common.tuple.Tuple3;
-import com.agraph.core.internal.EdgeId;
-import com.agraph.core.internal.VertexId;
+import com.agraph.GraphComponent;
+import com.agraph.core.EdgeId;
+import com.agraph.core.VertexId;
 import org.apache.tinkerpop.gremlin.structure.Direction;
 
 import java.util.Iterator;
 import java.util.concurrent.Future;
 
-public interface StorageEngine extends AutoCloseable {
+public interface StorageEngine extends GraphComponent, AutoCloseable {
 
-    Future<?> initialize(AGraph graph);
+    Future<?> initialize();
 
     Iterator<AGraphVertex> vertices(String... labels);
 
@@ -23,14 +22,12 @@ public interface StorageEngine extends AutoCloseable {
 
     Future<?> deleteVertices(Iterable<VertexId> vertexIds, String... labels);
 
-//    Iterator<AGraphEdge> edges(Iterable<EdgeId> edgeIds);
-    
-    Iterator<AGraphEdge> edges(Iterable<Tuple3<VertexId, VertexId, String>> edgeIds);
+    Iterator<AGraphEdge> edges(Iterable<EdgeId> edgeIds);
 
     Iterator<AGraphEdge> edges(VertexId vertexId, Direction direction, String... labels);
 
-    Iterator<AGraphEdge> edges(VertexId vertexId, Direction direction,
-                               Iterable<VertexId> vertexIds, String... labels);
+    Iterator<AGraphEdge> edges(VertexId ownVertexId, Direction direction,
+                               Iterable<VertexId> otherVertexIds, String... labels);
 
     Future<?> mutateEdges(Iterable<AGraphEdge> edges);
 

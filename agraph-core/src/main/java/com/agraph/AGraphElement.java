@@ -1,13 +1,12 @@
 package com.agraph;
 
-import com.agraph.core.internal.VertexId;
 import org.apache.tinkerpop.gremlin.structure.Element;
 
-public interface AGraphElement extends Element {
+public interface AGraphElement extends Element, Statifiable, Cloneable {
 
     AGraph graph();
 
-    VertexId id();
-
-    void remove();
+    default AGraphTransaction tx() {
+        return graph().tx();
+    }
 }

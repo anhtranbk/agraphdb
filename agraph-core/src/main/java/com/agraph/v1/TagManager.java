@@ -1,7 +1,7 @@
 package com.agraph.v1;
 
 import com.google.common.util.concurrent.ListenableFuture;
-import com.agraph.common.utils.IterableAdapter;
+import com.agraph.common.util.IterableAdapter;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -2,7 +2,7 @@ package com.agraph.v1.hbase;
 
 import com.agraph.config.Config;
 import com.google.common.util.concurrent.Futures;
-import com.agraph.common.utils.ThreadPool;
+import com.agraph.common.util.ThreadPool;
 import org.apache.hadoop.hbase.HColumnDescriptor;
 import org.apache.hadoop.hbase.HTableDescriptor;
 import org.apache.hadoop.hbase.TableName;

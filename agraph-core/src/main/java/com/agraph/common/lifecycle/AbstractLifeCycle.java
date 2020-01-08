@@ -1,6 +1,6 @@
 package com.agraph.common.lifecycle;
 
-import com.agraph.common.utils.Utils;
+import com.agraph.common.util.Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

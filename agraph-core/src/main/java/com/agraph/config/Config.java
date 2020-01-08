@@ -1,7 +1,7 @@
 package com.agraph.config;
 
-import com.agraph.common.utils.DateTimes;
-import com.agraph.common.utils.Strings;
+import com.agraph.common.util.DateTimes;
+import com.agraph.common.util.Strings;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.FileInputStream;
@@ -161,7 +161,7 @@ public class Config {
         }
     }
 
-    public double getFloat(String key, float defVal) {
+    public float getFloat(String key, float defVal) {
         try {
             return Float.parseFloat(getProperty(key));
         } catch (Exception ignored) {

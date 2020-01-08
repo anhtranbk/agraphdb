@@ -16,8 +16,7 @@ import java.util.Map;
 public class CassandraUtils {
 
     public static Map<String, Object> convertRowToMap(Row row) {
-        Map<String, Object> map = new HashMap<>();
-        map.putAll(row.getMap("ex", String.class, String.class));
+        Map<String, Object> map = new HashMap<>(row.getMap("ex", String.class, String.class));
 //        map.put("id", row.getLong("uid"));
         map.put("address", row.getString("addr"));
         map.put("birthday", row.getString("bday"));
@@ -31,8 +30,7 @@ public class CassandraUtils {
         if (gender != null)
             map.put("gender", (gender.equals("f") ? "female" : "male"));
 
-        List<Long> uids = new ArrayList<>();
-        uids.addAll(row.getSet("uids", Long.class));
+        List<Long> uids = new ArrayList<>(row.getSet("uids", Long.class));
         map.put("uids", uids);
 
         Map<String, String> mapFb = row.getMap("fb", String.class, String.class);

@@ -1,5 +1,6 @@
 package com.agraph.common.cache;
 
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -19,19 +20,28 @@ public class LRUCache<K, V> implements Cache<K, V> {
         };
     }
 
+    @Override
     public V get(K key) {
         return this.cache.get(key);
     }
 
+    @Override
     public void put(K key, V value) {
         this.cache.put(key, value);
     }
 
-    public boolean remove(K key) {
-        return this.cache.remove(key) != null;
+    @Override
+    public void invalidate(K key) {
+        this.cache.remove(key);
     }
 
+    @Override
     public long size() {
-        return (long)this.cache.size();
+        return this.cache.size();
+    }
+
+    @Override
+    public Map<K, V> asMap() {
+        return Collections.unmodifiableMap(cache);
     }
 }

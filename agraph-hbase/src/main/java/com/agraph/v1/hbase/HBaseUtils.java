@@ -1,6 +1,6 @@
 package com.agraph.v1.hbase;
 
-import com.agraph.common.utils.Strings;
+import com.agraph.common.util.Strings;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.Scan;

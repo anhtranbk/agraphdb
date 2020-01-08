@@ -5,6 +5,8 @@ import org.apache.tinkerpop.gremlin.structure.Edge;
 
 public interface AGraphEdge extends AGraphElement, Edge {
 
+    AGraph graph();
+
     default AGraphVertex outVertex() {
         return (AGraphVertex)this.vertices(Direction.OUT).next();
     }

@@ -1,6 +1,6 @@
 package com.agraph.common.lifecycle;
 
-import com.agraph.common.utils.Threads;
+import com.agraph.common.util.Threads;
 import com.agraph.config.Config;
 
 import java.util.concurrent.TimeUnit;

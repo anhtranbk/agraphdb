@@ -1,17 +1,34 @@
 package com.agraph.storage.rdbms;
 
-import com.agraph.storage.MutationList;
+import com.agraph.storage.Mutation;
+import com.agraph.storage.StorageBackend;
+import com.agraph.storage.StorageFeatures;
+import com.agraph.storage.rdbms.query.Query;
 
-import java.nio.ByteBuffer;
+import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
-public interface RdbmsStorageBackend {
+/**
+ * @author <a href="https://github.com/tjeubaoit">tjeubaoit</a>
+ */
+public interface RdbmsStorageBackend extends StorageBackend {
 
-    void createTable(String tableName, Map<String, Object> cols, List<String> primaryKeys);
+    boolean isTableExists(String tableName);
 
-    void mutate(String tableName, MutationList mutations);
+    void createTable(String tableName, Iterable<Column> columns, String... keys);
 
-    void delete(String tableName, Set<ByteBuffer> primaryKeys);
+    void createIndices(String tableName, Iterable<Index> indices);
+
+    void mutate(String tableName, Iterable<Mutation> mutations);
+
+    void delete(String tableName, String... keys);
+
+    Iterator<Result> query(Query query);
+
+    Iterator<Result> rawQuery(String query, List<Object> params);
+
+    @Override
+    default StorageFeatures getFeatures() {
+        return new RdbmsStorageFeature();
+    }
 }

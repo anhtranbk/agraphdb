@@ -9,7 +9,6 @@ import java.util.Map;
  *
  * @author <a href="https://github.com/tjeubaoit">tjeubaoit</a>
  */
-@SuppressWarnings("unchecked")
 public abstract class AbstractElement implements Element {
 
     private final String id;

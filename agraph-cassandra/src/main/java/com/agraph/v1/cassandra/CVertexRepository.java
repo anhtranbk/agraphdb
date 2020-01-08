@@ -8,11 +8,11 @@ import com.datastax.driver.core.ResultSetFuture;
 import com.datastax.driver.core.Row;
 import com.google.common.collect.Iterables;
 import com.google.common.util.concurrent.ListenableFuture;
-import com.agraph.common.concurrency.FutureAdapter;
-import com.agraph.common.utils.DateTimes;
-import com.agraph.common.utils.IterableAdapter;
-import com.agraph.common.utils.Maps;
-import com.agraph.common.utils.Utils;
+import com.agraph.common.concurrent.FutureAdapter;
+import com.agraph.common.util.DateTimes;
+import com.agraph.common.util.IterableAdapter;
+import com.agraph.common.util.Maps;
+import com.agraph.common.util.Utils;
 import com.agraph.v1.Vertex;
 import com.agraph.v1.repository.VertexRepository;
 
@@ -68,7 +68,6 @@ public class CVertexRepository extends AbstractRepository implements VertexRepos
                 row.getMap("p", String.class, String.class));
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public Iterable<Vertex> findByLabel(String label) {
         String query = "SELECT * FROM vertices WHERE salt = ? AND label = ?";

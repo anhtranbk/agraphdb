@@ -1,14 +1,13 @@
 package com.agraph.config;
 
-import com.agraph.common.utils.DateTimes;
+import com.agraph.common.util.DateTimes;
+import com.google.common.base.Preconditions;
 
 import java.lang.reflect.Field;
 import java.util.Collection;
 import java.util.Date;
 
 /**
- * TODO: Class description here.
- *
  * @author <a href="https://github.com/tjeubaoit">tjeubaoit</a>
  */
 public interface Configurable {
@@ -25,20 +24,35 @@ public interface Configurable {
                 Class<?> type = field.getType();
 
                 if (type.isAssignableFrom(Integer.class) || type.equals(int.class)) {
-                    field.setInt(this, config.getInt(name, Integer.parseInt(defVal)));
+                    int val = config.getInt(name, Integer.parseInt(defVal));
+                    validateNumberField(descriptor, val);
+                    field.setInt(this, val);
+
                 } else if (type.isAssignableFrom(Long.class) || type.equals(long.class)) {
-                    field.setLong(this, config.getLong(name, Long.parseLong(defVal)));
+                    long val = config.getLong(name, Long.parseLong(defVal));
+                    validateNumberField(descriptor, val);
+                    field.setLong(this, val);
+
                 } else if (type.isAssignableFrom(Boolean.class) || type.equals(boolean.class)) {
                     field.setBoolean(this, config.getBool(name, Boolean.parseBoolean(defVal)));
+
                 } else if (type.isAssignableFrom(Double.class) || type.equals(double.class)) {
-                    field.setDouble(this, config.getDouble(name, Double.parseDouble(defVal)));
+                    double val = config.getDouble(name, Double.parseDouble(defVal));
+                    validateNumberField(descriptor, val);
+                    field.setDouble(this, val);
+
                 } else if (type.isAssignableFrom(Float.class) || type.equals(float.class)) {
-                    field.setFloat(this, (float) config.getDouble(name, Float.parseFloat(defVal)));
+                    float val = config.getFloat(name, Float.parseFloat(defVal));
+                    validateNumberField(descriptor, val);
+                    field.setFloat(this, val);
+
                 } else if (type.isAssignableFrom(Date.class)) {
                     Date defDate = DateTimes.parse(defVal, descriptor.datetimeFormat());
                     field.set(this, config.getDateTime(name, descriptor.datetimeFormat(), defDate));
+
                 } else if (type.isAssignableFrom(Collection.class)) {
                     field.set(this, config.getCollection(name, descriptor.collectionDelimiter()));
+
                 } else {
                     field.set(this, config.getString(name, defVal));
                 }
@@ -48,5 +62,11 @@ public interface Configurable {
                 field.setAccessible(false);
             }
         }
+    }
+
+    static void validateNumberField(ConfigDescriptor descriptor, double val) {
+        double max = descriptor.maxValue();
+        double min = descriptor.minValue();
+        Preconditions.checkArgument(val <= max && val >= min, "Field value is not in range");
     }
 }

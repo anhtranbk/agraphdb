@@ -1,6 +1,6 @@
 package com.agraph.v1;
 
-import com.agraph.common.utils.Reflects;
+import com.agraph.common.util.Reflects;
 import com.agraph.config.Config;
 import com.agraph.v1.repository.RepositoryFactory;
 

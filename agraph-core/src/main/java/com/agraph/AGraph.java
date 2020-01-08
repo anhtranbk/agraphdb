@@ -1,12 +1,16 @@
 package com.agraph;
 
-import com.agraph.core.tinkerpop.AGraphFeatures;
-import com.agraph.core.tinkerpop.AGraphVariables;
-import com.agraph.core.transaction.TransactionBuilder;
+import com.agraph.config.Config;
+import com.agraph.core.tx.TransactionBuilder;
 import org.apache.tinkerpop.gremlin.process.computer.GraphComputer;
 import org.apache.tinkerpop.gremlin.structure.Graph;
+import org.apache.tinkerpop.gremlin.structure.T;
 
-public interface AGraph extends Graph {
+import java.io.Closeable;
+
+public interface AGraph extends Graph, Closeable {
+
+    Config getConfig();
 
     AGraphTransaction newTransaction();
 
@@ -17,6 +21,20 @@ public interface AGraph extends Graph {
     boolean isClosed();
 
     @Override
+    AGraphVertex addVertex(final Object... keyValues);
+
+    @Override
+    default AGraphVertex addVertex(final String label) {
+        return this.addVertex(T.label, label);
+    }
+
+    @Override
+    AGraphTransaction tx();
+
+    @Override
+    void close();
+
+    @Override
     default  <C extends GraphComputer> C compute(Class<C> graphComputerClass) throws IllegalArgumentException {
         throw Graph.Exceptions.graphDoesNotSupportProvidedGraphComputer(graphComputerClass);
     }
@@ -24,15 +42,5 @@ public interface AGraph extends Graph {
     @Override
     default GraphComputer compute() throws IllegalArgumentException {
         throw Graph.Exceptions.graphComputerNotSupported();
-    }
-
-    @Override
-    default Variables variables() {
-        return new AGraphVariables();
-    }
-
-    @Override
-    default Features features() {
-        return new AGraphFeatures();
     }
 }

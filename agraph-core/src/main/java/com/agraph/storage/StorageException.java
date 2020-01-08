@@ -1,8 +1,8 @@
 package com.agraph.storage;
 
-import com.agraph.v1.GraphException;
+import com.agraph.AGraphException;
 
-public class StorageException extends GraphException {
+public class StorageException extends AGraphException {
 
     public StorageException() {
     }
