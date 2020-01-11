@@ -7,7 +7,7 @@ import com.datastax.driver.core.ResultSet;
 import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.agraph.common.concurrent.FutureAdapter;
-import com.agraph.common.util.IterableAdapter;
+import com.agraph.common.util.Iterables;
 import com.agraph.common.util.Maps;
 import com.agraph.common.util.Utils;
 import com.agraph.v1.Direction;
@@ -62,7 +62,7 @@ public class CEdgeRepository extends AbstractRepository implements EdgeRepositor
             rs = session.execute(query, src.label(), src.id(), directionToString(direction), label);
         }
 
-        return IterableAdapter.from(rs, row -> {
+        return Iterables.transform(rs, row -> {
             String elb = row.getString("label");
             Direction d = directionFromString(row.getString("d"));
             Vertex dst = Vertex.create(row.getString("dstid"), row.getString("dstlb"));

@@ -4,7 +4,7 @@ import com.agraph.config.Config;
 import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.agraph.common.concurrent.FutureAdapter;
-import com.agraph.common.util.IterableAdapter;
+import com.agraph.common.util.Iterables;
 import com.agraph.common.util.Strings;
 import com.agraph.common.util.Utils;
 import com.agraph.v1.Direction;
@@ -114,7 +114,7 @@ public class HEdgeRepository extends BaseRepository implements EdgeRepository {
             scan.setRowPrefixFilter(rowPrefix);
             ResultScanner scanner = table.getScanner(scan);
 
-            return IterableAdapter.from(scanner, result -> {
+            return Iterables.transform(scanner, result -> {
                 EdgeKey key = EdgeKey.from(result.getRow());
                 Direction d = key.direction;
                 String elb = key.edgeLabel;

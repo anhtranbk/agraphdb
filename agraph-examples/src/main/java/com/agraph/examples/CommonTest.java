@@ -5,10 +5,7 @@ import com.agraph.v1.GraphDatabase;
 import com.agraph.v1.GraphSession;
 import com.agraph.v1.Vertex;
 
-/**
- * Hello world!
- */
-public class App {
+public class CommonTest {
 
     public static void main(String[] args) throws Exception {
         GraphSession session = GraphDatabase.open(new Config());

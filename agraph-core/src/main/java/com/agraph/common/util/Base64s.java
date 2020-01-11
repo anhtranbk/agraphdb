@@ -1,11 +1,9 @@
 package com.agraph.common.util;
 
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 
 /**
- * TODO: Class description here.
- *
  * @author <a href="https://github.com/tjeubaoit">tjeubaoit</a>
  */
 public class Base64s {
@@ -16,7 +14,7 @@ public class Base64s {
     }
 
     public static String encodeAsString(byte[] src, boolean urlSafe) {
-        return new String(encode(src, urlSafe), Charset.forName("utf-8"));
+        return new String(encode(src, urlSafe), StandardCharsets.UTF_8);
     }
 
     public static byte[] decode(byte[] src, boolean urlSafe) {
@@ -25,6 +23,6 @@ public class Base64s {
     }
 
     public static String decodedAsString(byte[] src, boolean urlSafe) {
-        return new String(decode(src, urlSafe), Charset.forName("utf-8"));
+        return new String(decode(src, urlSafe), StandardCharsets.UTF_8);
     }
 }

@@ -15,16 +15,16 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
 
 public class Utils {
 
     @SuppressWarnings("unchecked")
     public static <T> int compare(Comparable<T> c1, Comparable<T> c2) {
         return c1.compareTo((T) c2);
+    }
+
+    public static <E> boolean notEquals(E e1, E e2) {
+        return !e1.equals(e2);
     }
 
     public static <T> T lastItem(Iterable<T> collection) {
@@ -38,6 +38,7 @@ public class Utils {
         return last;
     }
 
+    @SuppressWarnings("rawtypes")
     public static boolean isEmpty(Object o) {
         if (o == null) {
             return true;
@@ -48,40 +49,7 @@ public class Utils {
         } else if (o instanceof Collection) {
             return ((Collection) o).isEmpty();
         } else {
-            return o instanceof Map ? ((Map) o).isEmpty() : false;
-        }
-    }
-
-    @Deprecated
-    public static void sleepIgnoredException(long millis) {
-        try {
-            Thread.sleep(millis);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-    }
-
-    @Deprecated
-    public static ExecutorService newCachedThreadPool(int coreSize, int maxSize, int queueSize) {
-        return new ThreadPoolExecutor(coreSize,
-                maxSize,
-                60L,
-                TimeUnit.SECONDS,
-                new ArrayBlockingQueue<>(queueSize));
-    }
-
-    @Deprecated
-    public static void stopExecutor(ExecutorService executor) {
-        executor.shutdown();
-    }
-
-    @Deprecated
-    public static void stopExecutor(ExecutorService executor, long timeout, TimeUnit unit) {
-        try {
-            executor.awaitTermination(timeout, unit);
-            executor.shutdown();
-        } catch (InterruptedException e) {
-            e.printStackTrace(System.out);
+            return o instanceof Map && ((Map) o).isEmpty();
         }
     }
 
@@ -149,16 +117,12 @@ public class Utils {
         return DateTimes.format(new Date(), "yyyy-MM-dd HH:mm:ss") + " - ";
     }
 
-    public static long reverseTimestamp() {
+    public static long inverseTimestamp() {
         return Long.MAX_VALUE - System.currentTimeMillis();
     }
 
     public static void addShutdownHook(Runnable target) {
         Runtime.getRuntime().addShutdownHook(new Thread(target));
-    }
-
-    public static <E> boolean notEquals(E e1, E e2) {
-        return !e1.equals(e2);
     }
 
     public static String getHostName() {

@@ -1,6 +1,6 @@
 package com.agraph.common.util;
 
-import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Locale;
@@ -110,18 +110,12 @@ public class Strings {
     public static String simplify(String source) {
         return source.toLowerCase().replaceAll("[.,:;?!\n\t]", "");
     }
-    public static String utf8(byte[] bytes) {
-        try {
-            return new String(bytes, "UTF8");
-        } catch (UnsupportedEncodingException var2) {
-            throw new RuntimeException("This shouldn't happen.", var2);
-        }
+
+    public static byte[] encode(String value) {
+        return value.getBytes(StandardCharsets.UTF_8);
     }
-    public static byte[] utf8(String string) {
-        try {
-            return string.getBytes("UTF8");
-        } catch (UnsupportedEncodingException var2) {
-            throw new RuntimeException("This shouldn't happen.", var2);
-        }
+
+    public static String decode(byte[] bytes) {
+        return new String(bytes, StandardCharsets.UTF_8);
     }
 }

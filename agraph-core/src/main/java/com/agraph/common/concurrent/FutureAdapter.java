@@ -1,6 +1,5 @@
 package com.agraph.common.concurrent;
 
-import com.agraph.common.Function;
 import com.google.common.util.concurrent.ListenableFuture;
 import org.jetbrains.annotations.NotNull;
 
@@ -10,6 +9,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Function;
 
 public class FutureAdapter<S, R> implements ListenableFuture<R> {
 

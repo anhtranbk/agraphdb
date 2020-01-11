@@ -1,11 +1,10 @@
 package com.agraph.v1.hbase;
 
 import com.agraph.config.Config;
-import com.google.common.collect.Iterables;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.agraph.common.concurrent.FutureAdapter;
 import com.agraph.common.util.DateTimes;
-import com.agraph.common.util.IterableAdapter;
+import com.agraph.common.util.Iterables;
 import com.agraph.common.util.Strings;
 import com.agraph.common.util.Utils;
 import com.agraph.v1.Vertex;
@@ -81,7 +80,7 @@ public class HVertexRepository extends BaseRepository implements VertexRepositor
                 scan.setRowPrefixFilter(rowPrefix);
                 ResultScanner scanner = table.getScanner(scan);
 
-                listVertices.add(IterableAdapter.from(scanner, r -> {
+                listVertices.add(Iterables.transform(scanner, r -> {
                     Map<String, Object> props = new HashMap<>();
                     r.getFamilyMap(CF).forEach((k, v) -> props.put(Bytes.toString(k), Bytes.toString(v)));
 
@@ -91,7 +90,7 @@ public class HVertexRepository extends BaseRepository implements VertexRepositor
                     return Vertex.create(id, label, props);
                 }));
             }
-            return Iterables.concat(listVertices);
+            return com.google.common.collect.Iterables.concat(listVertices);
         } catch (IOException e) {
             throw new HBaseRuntimeException(e);
         }
@@ -143,7 +142,7 @@ public class HVertexRepository extends BaseRepository implements VertexRepositor
         byte[] row = buildRowKey(vertex.id(), vertex.label());
 
         Put put = new Put(row);
-        put.addColumn(CF, Constants.CQ_CREATED_DATE, Utils.reverseTimestamp(), DateTimes.currentDateAsBytes());
+        put.addColumn(CF, Constants.CQ_CREATED_DATE, Utils.inverseTimestamp(), DateTimes.currentDateAsBytes());
         put.addColumn(CF, CQ_HIDDEN, HBaseUtils.EMPTY);
 
         vertex.properties().forEach((k, v) -> {

@@ -12,8 +12,6 @@ import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * TODO: Class description here.
- *
  * @author <a href="https://github.com/tjeubaoit">tjeubaoit</a>
  */
 public class TaskManager {
@@ -75,7 +73,7 @@ public class TaskManager {
             Threads.sleep(500);
             errorCounter.decrementAndGet();
 
-            throw new TaskErrorExceedLimitException(
+            throw new TaskFailedLimitException(
                     "Number task error " + errorCounter.get() + ", threshold " + errorThreshold);
         }
 

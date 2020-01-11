@@ -6,11 +6,10 @@ import com.datastax.driver.core.PreparedStatement;
 import com.datastax.driver.core.ResultSet;
 import com.datastax.driver.core.ResultSetFuture;
 import com.datastax.driver.core.Row;
-import com.google.common.collect.Iterables;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.agraph.common.concurrent.FutureAdapter;
 import com.agraph.common.util.DateTimes;
-import com.agraph.common.util.IterableAdapter;
+import com.agraph.common.util.Iterables;
 import com.agraph.common.util.Maps;
 import com.agraph.common.util.Utils;
 import com.agraph.v1.Vertex;
@@ -76,7 +75,7 @@ public class CVertexRepository extends AbstractRepository implements VertexRepos
         for (int i = 1; i <= NUMBER_SALT; i++) {
             ResultSet rs = session.execute(query, String.valueOf(i), label);
 
-            Iterable<Vertex> vertices =  IterableAdapter.from(rs, row -> {
+            Iterable<Vertex> vertices =  Iterables.transform(rs, row -> {
                 String id = row.getString("id");
                 Map<String, String> p = row.getMap("p", String.class, String.class);
                 return Vertex.create(id, label, p);
@@ -84,7 +83,7 @@ public class CVertexRepository extends AbstractRepository implements VertexRepos
             list.add(vertices);
         }
 
-        return Iterables.concat(list);
+        return com.google.common.collect.Iterables.concat(list);
     }
 
     @Override
@@ -112,7 +111,7 @@ public class CVertexRepository extends AbstractRepository implements VertexRepos
                     vertex.label(),
                     vertex.id(),
                     DateTimes.currentDateAsString(),
-                    Utils.reverseTimestamp()));
+                    Utils.inverseTimestamp()));
 
             bs.add(psUpdateDt.bind(
                     new Date(),
