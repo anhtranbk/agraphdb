@@ -111,11 +111,11 @@ public class Strings {
         return source.toLowerCase().replaceAll("[.,:;?!\n\t]", "");
     }
 
-    public static byte[] encode(String value) {
+    public static byte[] toBytes(String value) {
         return value.getBytes(StandardCharsets.UTF_8);
     }
 
-    public static String decode(byte[] bytes) {
+    public static String fromBytes(byte[] bytes) {
         return new String(bytes, StandardCharsets.UTF_8);
     }
 }

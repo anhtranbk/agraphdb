@@ -64,14 +64,40 @@ public class Bytes {
     }
 
     public static String toHex(byte[] bytes) {
-        throw new UnsupportedOperationException();
+        StringBuilder sb = new StringBuilder();
+        for (byte b : bytes) {
+            sb.append(String.format("%02x", b));
+        }
+        return sb.toString();
     }
+
+//    private static String bytesToHex(byte[] hashInBytes) {
+//
+//        StringBuilder sb = new StringBuilder();
+//        for (int i = 0; i < hashInBytes.length; i++) {
+//            sb.append(Integer.toString((hashInBytes[i] & 0xff) + 0x100, 16).substring(1));
+//        }
+//        return sb.toString();
+//
+//    }
+//
+//    private static String bytesToHex2(byte[] hashInBytes) {
+//
+//        StringBuilder sb = new StringBuilder();
+//        for (int i = 0; i < hashInBytes.length; i++) {
+//            String hex = Integer.toHexString(0xff & hashInBytes[i]);
+//            if (hex.length() == 1) sb.append('0');
+//            sb.append(hex);
+//        }
+//        return sb.toString();
+//
+//    }
 
     public static byte[] fromHex(String hex) {
         throw new UnsupportedOperationException();
     }
 
     public static String toString(byte[] bytes) {
-        return Strings.decode(bytes);
+        return Strings.fromBytes(bytes);
     }
 }
