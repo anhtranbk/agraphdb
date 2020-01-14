@@ -1,7 +1,6 @@
 package com.agraph.core;
 
 import com.agraph.AGraphVertex;
-import com.agraph.State;
 import org.apache.tinkerpop.gremlin.structure.Property;
 import org.apache.tinkerpop.gremlin.structure.VertexProperty;
 
@@ -21,7 +20,7 @@ public class AGraphVertexProperty<V> extends AGraphProperty<V> implements Vertex
 
     @Override
     public Object id() {
-        return owner.id().toString() + "_" + key;
+        return owner.id() + ":" + key;
     }
 
     @Override

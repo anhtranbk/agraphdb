@@ -1,34 +1,25 @@
 package com.agraph.core;
 
-import com.agraph.AGraphElement;
-import com.agraph.common.util.Strings;
 import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableMap;
 import org.apache.tinkerpop.gremlin.structure.Property;
 import org.apache.tinkerpop.gremlin.structure.util.ElementHelper;
 import org.apache.tinkerpop.gremlin.structure.util.StringFactory;
 
-import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Objects;
 
 public abstract class AGraphProperty<V> implements Property<V> {
 
-    public static final Map<String, AGraphProperty<?>> EMPTY = ImmutableMap.of();
-
-    protected final AGraphElement owner;
+    protected final AbstractElement owner;
     protected final String key;
     protected final V value;
 
     private boolean removed = false;
 
-    public AGraphProperty(AGraphElement owner, String key, V value) {
+    public AGraphProperty(AbstractElement owner, String key, V value) {
         Preconditions.checkNotNull(owner, "Owner can not be null");
-        Preconditions.checkArgument(Strings.isNonEmpty(key), "Property key can not be null or empty");
-        if (value == null) {
-            throw Exceptions.propertyValueCanNotBeNull();
-        }
-        this.validatePropertyValue(value);
+        ElementHelper.validateProperty(key, value);
+        AGraphProperty.validatePropertyValueDataType(value);
 
         this.owner = owner;
         this.key = key;
@@ -50,6 +41,7 @@ public abstract class AGraphProperty<V> implements Property<V> {
     public void remove() {
         ensurePropertyExists();
         this.removed = true;
+        this.owner.removeProperty(this.key);
     }
 
     @Override
@@ -61,10 +53,6 @@ public abstract class AGraphProperty<V> implements Property<V> {
         if (removed) {
             throw Exceptions.propertyDoesNotExist();
         }
-    }
-
-    private void validatePropertyValue(V value) {
-        throw Exceptions.dataTypeOfPropertyValueNotSupported(value);
     }
 
     @Override
@@ -85,5 +73,8 @@ public abstract class AGraphProperty<V> implements Property<V> {
     @Override
     public String toString() {
         return StringFactory.propertyString(this);
+    }
+
+    private static <U> void validatePropertyValueDataType(U value) {
     }
 }
