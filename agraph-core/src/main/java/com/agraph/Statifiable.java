@@ -7,26 +7,26 @@ public interface Statifiable {
     void updateState(State state);
 
     default boolean isNew() {
-        return state().equals(State.NEW);
+        return state() == State.NEW;
     }
 
-    default boolean isEmpty() {
-        return state().equals(State.EMPTY);
+    default boolean isLagged() {
+        return state() == State.LAGGED;
     }
 
     default boolean isLoaded() {
-        return state().equals(State.LOADED);
+        return state() == State.LOADED;
     }
 
     default boolean isModified() {
-        return state().equals(State.MODIFIED);
+        return state() == State.MODIFIED;
     }
 
     default boolean isRemoved() {
-        return state().equals(State.REMOVED);
+        return state() == State.REMOVED;
     }
 
     default boolean isPresent() {
-        return !state().equals(State.REMOVED);
+        return state() != State.REMOVED;
     }
 }
