@@ -1,6 +1,6 @@
 package com.agraph.core.type;
 
-import com.agraph.common.BytesBuffer;
+import com.agraph.core.serialize.BytesBuffer;
 import com.agraph.common.tuple.Tuple2;
 import com.agraph.exc.SerializationException;
 
