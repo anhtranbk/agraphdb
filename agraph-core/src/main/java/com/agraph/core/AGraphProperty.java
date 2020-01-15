@@ -33,13 +33,13 @@ public abstract class AGraphProperty<V> implements Property<V> {
 
     @Override
     public V value() throws NoSuchElementException {
-        ensurePropertyExists();
+        this.ensurePropertyExists();
         return value;
     }
 
     @Override
     public void remove() {
-        ensurePropertyExists();
+        this.ensurePropertyExists();
         this.removed = true;
         this.owner.removeProperty(this.key);
     }
@@ -47,12 +47,6 @@ public abstract class AGraphProperty<V> implements Property<V> {
     @Override
     public boolean isPresent() {
         return !removed;
-    }
-
-    private void ensurePropertyExists() {
-        if (removed) {
-            throw Exceptions.propertyDoesNotExist();
-        }
     }
 
     @Override
@@ -73,6 +67,12 @@ public abstract class AGraphProperty<V> implements Property<V> {
     @Override
     public String toString() {
         return StringFactory.propertyString(this);
+    }
+
+    protected void ensurePropertyExists() {
+        if (removed) {
+            throw Exceptions.propertyDoesNotExist();
+        }
     }
 
     private static <U> void validatePropertyValueDataType(U value) {

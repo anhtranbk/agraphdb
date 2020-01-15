@@ -1,34 +1,46 @@
 package com.agraph.core;
 
-import com.agraph.AGraph;
 import com.agraph.AGraphElement;
 import com.agraph.State;
 import com.agraph.common.util.Strings;
+import com.agraph.core.type.ElementId;
 import com.google.common.base.Preconditions;
+import lombok.Getter;
+import lombok.experimental.Accessors;
 import org.apache.tinkerpop.gremlin.structure.util.ElementHelper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
+@SuppressWarnings({"unchecked", "UnusedReturnValue", "SameParameterValue"})
+@Accessors(fluent = true)
 public abstract class AbstractElement implements AGraphElement {
 
-    private final AGraph graph;
-    private final ElementId id;
-    private final String label;
+    protected static final Logger logger = LoggerFactory.getLogger(AbstractElement.class);
 
+    @Getter
+    private final DefaultAGraph graph;
+    @Getter
+    private final ElementId id;
+    @Getter
+    private final String label;
+    @Getter
+    private State state;
     private final Map<String, AGraphProperty<?>> properties = new HashMap<>();
 
-    private State state;
-
-    public AbstractElement(AGraph graph, ElementId id, String label) {
+    public AbstractElement(DefaultAGraph graph, ElementId id, String label) {
         this(graph, id, label, State.NEW);
     }
 
-    public AbstractElement(AGraph graph, ElementId id, String label, State state) {
+    public AbstractElement(DefaultAGraph graph, ElementId id, String label, State state) {
         Preconditions.checkNotNull(id, "Element Id cannot be null");
-        Preconditions.checkArgument(Strings.isNonEmpty(label), "Label can not be null or empty");
+        Preconditions.checkNotNull(graph, "Graph cannot be null");
+        ElementHelper.validateLabel(label);
+
         this.graph = graph;
         this.id = id;
         this.label = label;
@@ -36,108 +48,43 @@ public abstract class AbstractElement implements AGraphElement {
     }
 
     @Override
-    public AGraph graph() {
-        return this.graph;
+    public void updateState(State state) {
+        if (state != State.REMOVED && this.state != state && this.state.nextState() != state) {
+            final String msg = Strings.format(
+                    "Illegal next state. Current: %s, expected: %s, got: %s",
+                    this.state, this.state.nextState(), state);
+            throw new IllegalStateException(msg);
+        }
+        this.state = state;
     }
 
     @Override
     public void remove() {
-        ensureElementExists();
-        updateState(State.REMOVED);
+        this.updateState(State.REMOVED);
     }
 
     @Override
-    public ElementId id() {
-        return this.id;
-    }
-
-    @Override
-    public String label() {
-        return this.label;
-    }
-
-    @Override
-    public State state() {
-        return this.state;
-    }
-
-    @Override
-    public void updateState(State state) {
-        this.state = state;
-    }
-
-    /**
-     * @return an Unmodifiable Map of properties
-     */
-    public Map<String, AGraphProperty<?>> getProperties() {
+    public Map<String, AGraphProperty<?>> asPropertiesMap() {
         return Collections.unmodifiableMap(this.properties);
     }
 
-    public Map<String, Object> getPropertiesMap() {
-        Map<String, Object> props = new HashMap<>();
+    @Override
+    public synchronized Map<String, Object> asValuesMap() {
+        Map<String, Object> props = new HashMap<>(this.properties.size());
         for (Map.Entry<String, AGraphProperty<?>> entry : this.properties.entrySet()) {
             props.put(entry.getKey(), entry.getValue().value());
         }
         return props;
     }
 
-    @SuppressWarnings("unchecked")
-    public <V> AGraphProperty<V> getProperty(String key) {
-        return (AGraphProperty<V>) this.properties.get(key);
-    }
-
-    @SuppressWarnings("unchecked")
-    public <V> V getPropertyValue(String key) {
+    @Override
+    public <V> V propertyValue(String key) {
         AGraphProperty<?> prop = this.properties.get(key);
         if (prop == null) {
             return null;
         }
         return (V) prop.value();
     }
-
-    public boolean hasProperty(String key) {
-        return this.properties.containsKey(key);
-    }
-
-    public int numProperties() {
-        return this.properties.size();
-    }
-
-    public AGraphProperty<?> removeProperty(String key) {
-        return this.properties.remove(key);
-    }
-
-    @SuppressWarnings("UnusedReturnValue")
-    public <V> AGraphProperty<?> putProperty(AGraphProperty<V> prop) {
-        return this.properties.put(prop.key(), prop);
-    }
-
-    public void resetProperties() {
-        this.properties.clear();
-    }
-
-    public void copyProperties(AbstractElement element) {
-        this.ensureElementExists();
-        this.properties.clear();
-        this.properties.putAll(element.getProperties());
-    }
-
-    protected Map<String, AGraphProperty<?>> properties() {
-        ensureElementExists();
-        ensureFilledProperties(true);
-        return this.properties;
-    }
-
-    protected void ensureElementExists() {
-        if (isRemoved()) {
-            throw new IllegalStateException("Element was removed");
-        }
-    }
-
-    @SuppressWarnings({"SameParameterValue", "UnusedReturnValue"})
-    protected abstract boolean ensureFilledProperties(boolean throwIfNotExist);
-
-    protected abstract AbstractElement copy();
 
     @Override
     public boolean equals(Object o) {
@@ -152,4 +99,45 @@ public abstract class AbstractElement implements AGraphElement {
     public int hashCode() {
         return Objects.hash(id, label);
     }
+
+    @Override
+    public void resetProperties() {
+        this.ensureElementCanModify();
+        this.updateState(State.MODIFIED);
+        this.properties.clear();
+    }
+
+    @Override
+    public void copyProperties(AbstractElement element) {
+        this.ensureElementCanModify();
+        this.updateState(State.MODIFIED);
+        this.properties.putAll(element.properties);
+    }
+
+    protected <V> AGraphProperty<V> removeProperty(String key) {
+        this.ensureElementCanModify();
+        this.updateState(State.MODIFIED);
+        return (AGraphProperty<V>) this.properties.remove(key);
+    }
+
+    protected <V> void putProperty(AGraphProperty<V> prop) {
+        this.ensureElementCanModify();
+        this.updateState(State.MODIFIED);
+        this.properties.put(prop.key(), prop);
+    }
+
+    protected Map<String, AGraphProperty<?>> autoFilledProperties() {
+        this.ensureFilledProperties(true);
+        return this.properties;
+    }
+
+    /**
+     * Ensure property was not removed. Mutate operations on removed
+     * elements is not allowed.
+     */
+    protected void ensureElementCanModify() {
+        Preconditions.checkState(!isRemoved(), "Could not modify a removed element");
+    }
+
+    protected abstract boolean ensureFilledProperties(boolean throwIfNotExist);
 }
