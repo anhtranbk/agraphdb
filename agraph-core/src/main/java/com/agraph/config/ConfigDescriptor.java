@@ -13,11 +13,13 @@ public @interface ConfigDescriptor {
 
     String value();
 
-    String defaultValue() default "0";
+    String defaultValue() default "";
 
-    double minValue() default 0;
+    double minValue() default Long.MIN_VALUE;
 
-    double maxValue() default 0;
+    double maxValue() default Long.MAX_VALUE;
+
+    boolean allowNull() default true;
 
     String datetimeFormat() default DateTimes.ISO_FORMAT;
 

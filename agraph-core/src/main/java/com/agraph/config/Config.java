@@ -15,7 +15,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
-import java.util.Locale;
 import java.util.Properties;
 import java.util.Set;
 import java.util.TreeSet;
@@ -91,6 +90,10 @@ public class Config {
         if (path != null) {
             this.addResource(new FileInputStream(path), true);
         }
+    }
+
+    public boolean containsKey(String key) {
+        return this.inst.containsKey(key);
     }
 
     public <T> void set(String key, @NotNull T val) {
@@ -231,17 +234,14 @@ public class Config {
     }
 
     @Override
-    public synchronized String toString() {
-        Set<Object> keySet = new TreeSet<>();
-        keySet.addAll(inst.keySet());
-        keySet.addAll(defaultProps.keySet());
-
-        List<Object> list = new ArrayList<>(keySet);
-        list.sort(Comparator.comparing(Object::toString));
+    public String toString() {
+        Set<Object> keySet = new TreeSet<>(inst.keySet());
+        List<Object> keys = new ArrayList<>(keySet);
+        keys.sort(Comparator.comparing(Object::toString));
 
         StringBuilder sb = new StringBuilder("Configuration properties:\n");
-        list.forEach(key -> sb.append(String.format(Locale.US, "\t%s = %s\n",
-                key.toString(), getProperty(key.toString(), ""))));
+        keys.forEach(key -> sb.append(Strings.format("\t%s = %s\n",
+                key.toString(), getString(key.toString()))));
         return sb.toString();
     }
 
