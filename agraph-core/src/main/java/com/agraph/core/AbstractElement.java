@@ -1,5 +1,6 @@
 package com.agraph.core;
 
+import com.agraph.AGraph;
 import com.agraph.AGraphElement;
 import com.agraph.State;
 import com.agraph.common.util.Strings;
@@ -26,7 +27,7 @@ public abstract class AbstractElement implements AGraphElement {
     protected static final Logger logger = LoggerFactory.getLogger(AbstractElement.class);
 
     @Getter
-    private final DefaultAGraph graph;
+    private final AGraph graph;
     @Getter
     private final ElementId id;
     @Getter
@@ -37,11 +38,11 @@ public abstract class AbstractElement implements AGraphElement {
     private final Map<String, AGraphProperty<?>> properties = new HashMap<>();
     private final Set<AGraphProperty<?>> rProperties = new HashSet<>();
 
-    public AbstractElement(DefaultAGraph graph, ElementId id, String label) {
+    public AbstractElement(AGraph graph, ElementId id, String label) {
         this(graph, id, label, State.NEW);
     }
 
-    public AbstractElement(DefaultAGraph graph, ElementId id, String label, State state) {
+    public AbstractElement(AGraph graph, ElementId id, String label, State state) {
         Preconditions.checkNotNull(id, "Element Id cannot be null");
         Preconditions.checkNotNull(graph, "Graph cannot be null");
         ElementHelper.validateLabel(label);
@@ -97,8 +98,7 @@ public abstract class AbstractElement implements AGraphElement {
         if (this == o) return true;
         if (!(o instanceof AbstractElement)) return false;
         AbstractElement that = (AbstractElement) o;
-        return Objects.equals(id, that.id) &&
-                Objects.equals(label, that.label);
+        return Objects.equals(id, that.id);
     }
 
     @Override
@@ -134,7 +134,7 @@ public abstract class AbstractElement implements AGraphElement {
                 this.rProperties.add(property);
                 this.updateState(State.MODIFIED);
             }
-            logger.debug("Property removed {}", property);
+            logger.debug("Property has been removed: {}", property);
             return (AGraphProperty<V>) property;
         }
         throw Property.Exceptions.propertyDoesNotExist(this, key);
