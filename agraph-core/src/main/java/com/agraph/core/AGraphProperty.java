@@ -55,8 +55,7 @@ public abstract class AGraphProperty<V> implements Property<V> {
         if (!(o instanceof AGraphProperty)) return false;
         AGraphProperty<?> that = (AGraphProperty<?>) o;
         return Objects.equals(owner, that.owner) &&
-                Objects.equals(key, that.key) &&
-                Objects.equals(value, that.value);
+                Objects.equals(key, that.key);
     }
 
     @Override
