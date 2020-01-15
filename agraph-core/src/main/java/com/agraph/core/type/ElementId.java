@@ -2,6 +2,8 @@ package com.agraph.core.type;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Objects;
+
 public abstract class ElementId implements Comparable<ElementId> {
 
     public static final String VERTEX_SEPARATOR = ":";
@@ -31,7 +33,7 @@ public abstract class ElementId implements Comparable<ElementId> {
         if (this == o) return true;
         if (!(o instanceof ElementId)) return false;
         ElementId that = (ElementId) o;
-        return this.asString().equals(that.asString());
+        return Objects.equals(this.asString(), that.asString());
     }
 
     @Override
