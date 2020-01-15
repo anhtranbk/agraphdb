@@ -1,6 +1,5 @@
 package com.agraph.core;
 
-import com.agraph.AGraph;
 import com.agraph.AGraphElement;
 import com.agraph.State;
 import com.agraph.common.util.Strings;
@@ -27,7 +26,7 @@ public abstract class AbstractElement implements AGraphElement {
     protected static final Logger logger = LoggerFactory.getLogger(AbstractElement.class);
 
     @Getter
-    private final AGraph graph;
+    private final DefaultAGraph graph;
     @Getter
     private final ElementId id;
     @Getter
@@ -38,11 +37,11 @@ public abstract class AbstractElement implements AGraphElement {
     private final Map<String, AGraphProperty<?>> properties = new HashMap<>();
     private final Set<AGraphProperty<?>> rProperties = new HashSet<>();
 
-    public AbstractElement(AGraph graph, ElementId id, String label) {
+    public AbstractElement(DefaultAGraph graph, ElementId id, String label) {
         this(graph, id, label, State.NEW);
     }
 
-    public AbstractElement(AGraph graph, ElementId id, String label, State state) {
+    public AbstractElement(DefaultAGraph graph, ElementId id, String label, State state) {
         Preconditions.checkNotNull(id, "Element Id cannot be null");
         Preconditions.checkNotNull(graph, "Graph cannot be null");
         ElementHelper.validateLabel(label);

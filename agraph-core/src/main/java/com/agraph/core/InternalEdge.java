@@ -3,6 +3,7 @@ package com.agraph.core;
 import com.agraph.AGraphEdge;
 import com.agraph.AGraphVertex;
 import com.agraph.core.type.EdgeId;
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterators;
 import io.reactivex.Observable;
 import lombok.Getter;
@@ -27,6 +28,10 @@ public class InternalEdge extends AbstractElement implements AGraphEdge {
     public InternalEdge(DefaultAGraph graph, String label,
                         InternalVertex outVertex, InternalVertex inVertex) {
         super(graph, EdgeId.create(label, outVertex, inVertex), label);
+
+        Preconditions.checkNotNull(outVertex, "Outgoing vertex can't be null");
+        Preconditions.checkNotNull(inVertex, "Incoming vertex can't be null");
+
         this.inVertex = inVertex;
         this.outVertex = outVertex;
         this.internalId = graph.getIdGenerator().generate();
@@ -93,13 +98,17 @@ public class InternalEdge extends AbstractElement implements AGraphEdge {
 
     @Override
     public boolean ensureFilledProperties(boolean throwIfNotExist) {
-        if (isNew() || isLoaded()) {
+        if (!isLagged()) {
+            logger.debug("Edge has already loaded");
             return true;
         }
         if (!this.tx().fillEdgeProperties(this)) {
             if (throwIfNotExist) {
                 throw new NoSuchElementException("Edge does not exist: " + this.id());
-            } else return false;
+            } else {
+                logger.warn("Edge does not exist: {}", this.id());
+                return false;
+            }
         }
         return true;
     }

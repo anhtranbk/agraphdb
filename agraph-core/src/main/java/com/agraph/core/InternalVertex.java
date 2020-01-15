@@ -46,12 +46,13 @@ public class InternalVertex extends AbstractElement implements AGraphVertex {
         if (idOps.isPresent()) {
             throw Edge.Exceptions.userSuppliedIdsNotSupported();
         }
+
         ElementHelper.validateLabel(label);
         ElementHelper.legalPropertyKeyValueArray(keyValues);
 
         Preconditions.checkNotNull(inVertex, "Incoming vertex can't be null");
         Preconditions.checkArgument(inVertex instanceof AGraphVertex,
-                "Incoming vertex must be an instance of InternalVertex");
+                "Incoming vertex must be an instance of AGraphVertex");
 
         InternalVertex vertex = (InternalVertex) inVertex;
         Preconditions.checkState(this.isPresent(),
@@ -117,13 +118,17 @@ public class InternalVertex extends AbstractElement implements AGraphVertex {
 
     @Override
     public boolean ensureFilledProperties(boolean throwIfNotExist) {
-        if (isNew() || isLoaded()) {
+        if (!isLagged()) {
+            logger.debug("Vertex has already loaded");
             return true;
         }
         if (!this.tx().fillVertexProperties(this)) {
             if (throwIfNotExist) {
                 throw new NoSuchElementException("Vertex does not exist: " + this.id());
-            } else return false;
+            } else {
+                logger.debug("Vertex does not exist: {}", this.id());
+                return false;
+            }
         }
         return true;
     }
