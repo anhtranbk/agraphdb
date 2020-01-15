@@ -1,17 +1,15 @@
 package com.agraph;
 
-import org.apache.tinkerpop.gremlin.structure.Direction;
+import com.agraph.core.type.EdgeId;
 import org.apache.tinkerpop.gremlin.structure.Edge;
 
 public interface AGraphEdge extends AGraphElement, Edge {
 
     AGraph graph();
 
-    default AGraphVertex outVertex() {
-        return (AGraphVertex)this.vertices(Direction.OUT).next();
-    }
+    EdgeId id();
 
-    default AGraphVertex inVertex() {
-        return (AGraphVertex)this.vertices(Direction.IN).next();
-    }
+    AGraphVertex outVertex();
+
+    AGraphVertex inVertex();
 }

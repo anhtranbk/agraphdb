@@ -1,6 +1,6 @@
 package com.agraph;
 
-import com.agraph.core.VertexId;
+import com.agraph.core.type.VertexId;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
 
 public interface AGraphVertex extends AGraphElement, Vertex {

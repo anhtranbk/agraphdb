@@ -7,14 +7,17 @@ import com.agraph.core.type.ElementId;
 import com.google.common.base.Preconditions;
 import lombok.Getter;
 import lombok.experimental.Accessors;
+import org.apache.tinkerpop.gremlin.structure.Property;
 import org.apache.tinkerpop.gremlin.structure.util.ElementHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 
 @SuppressWarnings({"unchecked", "UnusedReturnValue", "SameParameterValue"})
 @Accessors(fluent = true)
@@ -30,7 +33,9 @@ public abstract class AbstractElement implements AGraphElement {
     private final String label;
     @Getter
     private State state;
+
     private final Map<String, AGraphProperty<?>> properties = new HashMap<>();
+    private final Set<AGraphProperty<?>> rProperties = new HashSet<>();
 
     public AbstractElement(DefaultAGraph graph, ElementId id, String label) {
         this(graph, id, label, State.NEW);
@@ -53,7 +58,8 @@ public abstract class AbstractElement implements AGraphElement {
             final String msg = Strings.format(
                     "Illegal next state. Current: %s, expected: %s, got: %s",
                     this.state, this.state.nextState(), state);
-            throw new IllegalStateException(msg);
+            logger.warn(msg);
+            return;
         }
         this.state = state;
     }
@@ -114,10 +120,24 @@ public abstract class AbstractElement implements AGraphElement {
         this.properties.putAll(element.properties);
     }
 
+    public Set<AGraphProperty<?>> removedProperties() {
+        return Collections.unmodifiableSet(this.rProperties);
+    }
+
     protected <V> AGraphProperty<V> removeProperty(String key) {
         this.ensureElementCanModify();
-        this.updateState(State.MODIFIED);
-        return (AGraphProperty<V>) this.properties.remove(key);
+        AGraphProperty<?> property = this.properties.remove(key);
+        if (property != null) {
+            if (!isNew()) {
+                // If element state is not NEW, removed property will be keep to
+                // synchronize with the database later
+                this.rProperties.add(property);
+                this.updateState(State.MODIFIED);
+            }
+            logger.debug("Property removed {}", property);
+            return (AGraphProperty<V>) property;
+        }
+        throw Property.Exceptions.propertyDoesNotExist(this, key);
     }
 
     protected <V> void putProperty(AGraphProperty<V> prop) {
@@ -132,11 +152,15 @@ public abstract class AbstractElement implements AGraphElement {
     }
 
     /**
-     * Ensure property was not removed. Mutate operations on removed
-     * elements is not allowed.
+     * Modification on element is only allowed if element was not removed.
+     * If current element state is LAGGED, element must be refreshed from
+     * the database before it can do any mutations
      */
     protected void ensureElementCanModify() {
-        Preconditions.checkState(!isRemoved(), "Could not modify a removed element");
+        Preconditions.checkState(isPresent(), "Could not modify a removed element");
+        if (isLagged()) {
+            this.ensureFilledProperties(true);
+        }
     }
 
     protected abstract boolean ensureFilledProperties(boolean throwIfNotExist);
