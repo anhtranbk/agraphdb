@@ -15,6 +15,8 @@ public abstract class ElementId implements Comparable<ElementId> {
 
     public abstract boolean isEdge();
 
+    public abstract boolean isVertex();
+
     public byte[] asBytes() {
         return asString().getBytes();
     }

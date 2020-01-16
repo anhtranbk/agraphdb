@@ -69,6 +69,11 @@ public class VertexId extends ElementId {
         return false;
     }
 
+    @Override
+    public boolean isVertex() {
+        return true;
+    }
+
     public static VertexId fromBytes(byte[] bytes) {
         return fromString(Strings.fromBytes(bytes));
     }

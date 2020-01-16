@@ -51,6 +51,11 @@ public class EdgeId extends ElementId {
         return true;
     }
 
+    @Override
+    public boolean isVertex() {
+        return false;
+    }
+
     public static EdgeId create(String label, AGraphVertex outVertex, AGraphVertex inVertex) {
         return new EdgeId(label, outVertex, inVertex);
     }
