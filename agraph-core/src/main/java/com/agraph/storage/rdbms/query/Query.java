@@ -1,47 +1,54 @@
 package com.agraph.storage.rdbms.query;
 
 import com.google.common.base.Preconditions;
+import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
-public interface Query {
+@Accessors(fluent = true)
+@Getter
+public class Query {
 
-    String table();
+    private final String table;
+    private final Condition condition;
+    private final List<String> columns;
+    private final List<Order> orders;
+    private final int offset;
+    private final int limit;
 
-    List<String> columns();
+    private Query(String table, Condition condition, List<String> columns,
+                  List<Order> orders, int offset, int limit) {
+        this.table = table;
+        this.condition = condition;
+        this.columns = columns;
+        this.orders = orders;
+        this.offset = offset;
+        this.limit = limit;
+    }
 
-    Condition condition();
-
-    List<Order> orders();
-
-    int offset();
-
-    int limit();
-
-    static Builder builder(String table) {
+    public static Builder builder(String table) {
         return new Builder(table);
     }
 
     @Accessors(fluent = true, chain = true)
     @Setter
-    class Builder {
+    public static class Builder {
         String table;
         Condition condition;
         List<String> columns = new ArrayList<>(8);
         List<Order> orders = new ArrayList<>(8);
         int offset = 0;
-        int limit = -1;
+        int limit = Integer.MAX_VALUE;
 
         Builder(String table) {
             this.table = table;
         }
 
-        public Builder addColumn(String... cols) {
+        public Builder addColumns(String... cols) {
             columns.addAll(Arrays.asList(cols));
             return this;
         }
@@ -55,38 +62,7 @@ public interface Query {
             Preconditions.checkArgument(offset < 0, "Invalid offset %d", offset);
             Preconditions.checkArgument(limit < 0, "Invalid limit %d", limit);
 
-            final Builder delegate = Builder.this;
-            return new Query() {
-                @Override
-                public String table() {
-                    return delegate.table;
-                }
-
-                @Override
-                public List<String> columns() {
-                    return Collections.unmodifiableList(delegate.columns);
-                }
-
-                @Override
-                public Condition condition() {
-                    return delegate.condition;
-                }
-
-                @Override
-                public List<Order> orders() {
-                    return Collections.unmodifiableList(delegate.orders);
-                }
-
-                @Override
-                public int offset() {
-                    return delegate.offset;
-                }
-
-                @Override
-                public int limit() {
-                    return delegate.limit;
-                }
-            };
+            return new Query(table, condition, columns, orders, offset, limit);
         }
     }
 }
