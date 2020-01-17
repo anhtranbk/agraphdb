@@ -4,7 +4,7 @@
 
   <groupId>com.agraph</groupId>
   <artifactId>agraph-parent</artifactId>
-  <version>2.0</version>
+  <version>0.2</version>
   <packaging>pom</packaging>
 
   <name>agraph-parent</name>
@@ -22,6 +22,11 @@
     <module>agraph-hbase</module>
     <module>agraph-examples</module>
     <!--    <module>agraph-db2</module>-->
+    <!--    <module>agraph-mysql</module>-->
+    <!--    <module>agraph-postgresql</module>-->
+    <!--    <module>agraph-es</module>-->
+    <!--    <module>agraph-rocksdb</module>-->
+    <!--    <module>agraph-leveldb</module>-->
   </modules>
 
   <dependencies>

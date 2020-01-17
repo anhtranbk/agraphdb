@@ -7,7 +7,7 @@
   <parent>
     <artifactId>agraph-parent</artifactId>
     <groupId>com.agraph</groupId>
-    <version>2.0</version>
+    <version>0.2</version>
   </parent>
   <artifactId>agraph-core</artifactId>
 
@@ -38,6 +38,13 @@
       <groupId>com.google.guava</groupId>
       <artifactId>guava</artifactId>
       <version>28.0-jre</version>
+    </dependency>
+
+    <!-- https://mvnrepository.com/artifact/org.apache.commons/commons-lang3 -->
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-lang3</artifactId>
+      <version>3.9</version>
     </dependency>
 
     <!-- https://mvnrepository.com/artifact/org.apache.tinkerpop/gremlin-core -->

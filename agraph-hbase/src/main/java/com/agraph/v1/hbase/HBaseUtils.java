@@ -1,6 +1,7 @@
 package com.agraph.v1.hbase;
 
 import com.agraph.common.util.Strings;
+import com.agraph.core.serialize.BytesBuffer;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.Scan;
