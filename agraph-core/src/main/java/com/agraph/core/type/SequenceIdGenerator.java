@@ -1,11 +1,9 @@
-package com.agraph.storage.id;
+package com.agraph.core.type;
 
 import java.security.SecureRandom;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * TODO: Class description here.
- *
  * @author <a href="https://github.com/tjeubaoit">tjeubaoit</a>
  */
 public class SequenceIdGenerator implements IdGenerator {

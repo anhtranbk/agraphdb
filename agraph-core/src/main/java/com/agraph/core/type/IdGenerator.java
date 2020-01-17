@@ -1,4 +1,4 @@
-package com.agraph.storage.id;
+package com.agraph.core.type;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -10,8 +10,6 @@ import java.security.SecureRandom;
 import java.util.Enumeration;
 
 /**
- * TODO: Class description here.
- *
  * @author <a href="https://github.com/tjeubaoit">tjeubaoit</a>
  */
 public interface IdGenerator {
@@ -23,10 +21,10 @@ public interface IdGenerator {
         int machinePiece;
         try {
             StringBuilder sb = new StringBuilder();
-            Enumeration e = NetworkInterface.getNetworkInterfaces();
+            Enumeration<NetworkInterface> e = NetworkInterface.getNetworkInterfaces();
 
             while (e.hasMoreElements()) {
-                NetworkInterface ni = (NetworkInterface) e.nextElement();
+                NetworkInterface ni = e.nextElement();
                 sb.append(ni.toString());
                 byte[] mac = ni.getHardwareAddress();
                 if (mac != null) {
@@ -43,7 +41,8 @@ public interface IdGenerator {
             machinePiece = sb.toString().hashCode();
         } catch (Throwable t) {
             machinePiece = (new SecureRandom()).nextInt();
-            logger.warn("Failed to get machine identifier from network interface, using random number instead", t);
+            logger.warn("Failed to get machine identifier from network interface, " +
+                    "using random number instead", t);
         }
 
         return machinePiece;

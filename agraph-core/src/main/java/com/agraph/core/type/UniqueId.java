@@ -1,4 +1,4 @@
-package com.agraph.storage.id;
+package com.agraph.core.type;
 
 /**
  * TODO: Class description here.

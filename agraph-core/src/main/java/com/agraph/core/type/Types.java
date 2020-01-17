@@ -1,7 +1,7 @@
 package com.agraph.core.type;
 
-import com.agraph.core.serialize.BytesBuffer;
 import com.agraph.common.tuple.Tuple2;
+import com.agraph.core.serialize.BytesBuffer;
 import com.agraph.exc.SerializationException;
 
 import java.io.ByteArrayInputStream;
@@ -12,12 +12,47 @@ import java.io.ObjectOutputStream;
 import java.util.Date;
 import java.util.UUID;
 
+import static com.agraph.core.type.DataType.*;
+
 public class Types {
 
-    private static final int DEFAULT_CAPACITY = 32;
+    private static final int DEFAULT_CAPACITY = 128;
 
-    public static byte[] toBytes(DataType type, Object value) {
-        final BytesBuffer buffer = BytesBuffer.allocate(DEFAULT_CAPACITY);
+    public static byte[] encode(String val) {
+        return encode(STRING, val);
+    }
+
+    public static byte[] encode(long val) {
+        return encode(LONG, val);
+    }
+
+    public static byte[] encode(int val) {
+        return encode(INT, val);
+    }
+
+    public static byte[] encode(double val) {
+        return encode(DOUBLE, val);
+    }
+
+    public static byte[] encode(float val) {
+        return encode(FLOAT, val);
+    }
+
+    public static byte[] encode(UUID val) {
+        return encode(UUID, val);
+    }
+
+    public static byte[] encode(boolean val) {
+        return encode(BOOLEAN, val);
+    }
+
+    public static byte[] encode(Date val) {
+        return encode(DATE, val);
+    }
+
+    public static byte[] encode(DataType type, Object value) {
+        final int capacity = estimateCapacity(type, value);
+        final BytesBuffer buffer = BytesBuffer.allocate(capacity);
         buffer.put(type.code);
         switch (type) {
             case STRING:
@@ -55,51 +90,51 @@ public class Types {
         return buffer.bytes();
     }
 
-    public static Tuple2<DataType, Object> fromBytes(byte[] bytes) {
+    public static Tuple2<DataType, Object> decode(byte[] bytes) {
         final BytesBuffer buffer = BytesBuffer.wrap(bytes);
         final byte code = buffer.get();
         final Object val;
         final DataType type;
 
-        if (DataType.STRING.code == code) {
+        if (STRING.code == code) {
             val = buffer.getString();
-            type = DataType.STRING;
+            type = STRING;
 
         } else if (DataType.RAW.code == code) {
             val = buffer.getVBytes();
-            type = DataType.RAW;
+            type = RAW;
 
-        } else if (DataType.LONG.code == code) {
+        } else if (LONG.code == code) {
             val = buffer.getLong();
-            type = DataType.LONG;
+            type = LONG;
 
-        } else if (DataType.INT.code == code) {
+        } else if (INT.code == code) {
             val = buffer.getInt();
-            type = DataType.INT;
+            type = INT;
 
-        } else if (DataType.UUID.code == code) {
+        } else if (UUID.code == code) {
             val = buffer.getUUID();
-            type = DataType.UUID;
+            type = UUID;
 
-        } else if (DataType.DATE.code == code) {
+        } else if (DATE.code == code) {
             val = buffer.getDate();
-            type = DataType.DATE;
+            type = DATE;
 
-        } else if (DataType.BOOLEAN.code == code) {
+        } else if (BOOLEAN.code == code) {
             val = buffer.getBoolean();
-            type = DataType.BOOLEAN;
+            type = BOOLEAN;
 
-        } else if (DataType.FLOAT.code == code) {
+        } else if (FLOAT.code == code) {
             val = buffer.getFloat();
-            type = DataType.FLOAT;
+            type = FLOAT;
 
-        } else if (DataType.DOUBLE.code == code) {
+        } else if (DOUBLE.code == code) {
             val = buffer.getDouble();
-            type = DataType.DOUBLE;
+            type = DOUBLE;
 
-        } else if (DataType.OBJECT.code == code) {
+        } else if (OBJECT.code == code) {
             val = readObjectStandardJava(buffer.getVBytes());
-            type = DataType.OBJECT;
+            type = OBJECT;
         } else throw new IllegalArgumentException("Invalid byte array format, malformed code value");
 
         return new Tuple2<>(type, val);
@@ -131,5 +166,31 @@ public class Types {
         } catch (ClassCastException e) {
             return false;
         }
+    }
+
+    public static boolean isInt(Object object) {
+        try {
+            int l = (Integer) object;
+            return true;
+        } catch (ClassCastException e) {
+            return false;
+        }
+    }
+
+    private static int estimateCapacity(DataType type, Object val) {
+        final int capacity;
+        if (type == LONG || type == DOUBLE || type == INT || type == FLOAT || type == DATE) {
+            capacity = 8;
+        } else if (type == UUID) {
+            capacity = 16;
+        } else if (type == BOOLEAN) {
+            capacity = 1;
+        } else if (type == RAW) {
+            capacity = ((byte[]) val).length;
+        } else if (type == STRING) {
+            capacity = (int) Math.round(val.toString().length() * 1.5);
+        } else capacity = DEFAULT_CAPACITY;
+        // add one byte for type code
+        return capacity + 1;
     }
 }
