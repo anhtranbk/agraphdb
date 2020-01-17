@@ -33,8 +33,8 @@ public enum State {
         }
     },
     /**
-     * The entity has changed after being loaded from the database by adding
-     * and/or deleting relations.
+     * The entity has changed after being loaded from the database by
+     * adding/updating and/or deleting properties.
      */
     MODIFIED{
         @Override
