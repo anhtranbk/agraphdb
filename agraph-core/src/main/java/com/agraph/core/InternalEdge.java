@@ -1,7 +1,7 @@
 package com.agraph.core;
 
 import com.agraph.AGraphEdge;
-import com.agraph.AGraphVertex;
+import com.agraph.State;
 import com.agraph.core.type.EdgeId;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterators;
@@ -16,18 +16,19 @@ import org.apache.tinkerpop.gremlin.structure.util.StringFactory;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
-import java.util.NoSuchElementException;
+import java.util.Map;
 
 @Accessors(fluent = true)
+@Getter
 public class InternalEdge extends AbstractElement implements AGraphEdge {
 
     private final InternalVertex inVertex, outVertex;
-    @Getter
     private long internalId;
 
-    public InternalEdge(DefaultAGraph graph, String label,
-                        InternalVertex outVertex, InternalVertex inVertex) {
-        super(graph, EdgeId.create(label, outVertex, inVertex), label);
+    public InternalEdge(DefaultAGraph graph, EdgeId id, String label, State state,
+                        InternalVertex outVertex, InternalVertex inVertex,
+                        Map<String, ? extends AGraphEdgeProperty<?>> props) {
+        super(graph, id, label, state, props);
 
         Preconditions.checkNotNull(outVertex, "Outgoing vertex can't be null");
         Preconditions.checkNotNull(inVertex, "Incoming vertex can't be null");
@@ -62,16 +63,6 @@ public class InternalEdge extends AbstractElement implements AGraphEdge {
         return Iterators.transform(it, v -> v);
     }
 
-    @Override
-    public AGraphVertex inVertex() {
-        return this.inVertex;
-    }
-
-    @Override
-    public AGraphVertex outVertex() {
-        return this.outVertex;
-    }
-
     @SuppressWarnings("unchecked")
     @Override
     public <V> Iterator<Property<V>> properties(String... keys) {
@@ -82,40 +73,22 @@ public class InternalEdge extends AbstractElement implements AGraphEdge {
                     .blockingIterable()
                     .iterator();
         } else {
-            return Observable.fromIterable(this.autoFilledProperties().values())
-                    .filter(AGraphProperty::isPresent)
-                    .map(e -> (Property<V>) e)
-                    .blockingIterable()
-                    .iterator();
+            return Iterators.transform(
+                    this.autoFilledProperties().values().iterator(),
+                    e -> (Property<V>) e
+            );
         }
     }
 
     @Override
     public void remove() {
-        super.remove();
+        this.updateState(State.REMOVED);
         this.tx().removeEdge(this);
     }
 
     @Override
-    public boolean ensureFilledProperties(boolean throwIfNotExist) {
-        if (!isLagged()) {
-            logger.debug("Edge has already loaded");
-            return true;
-        }
-        if (!this.tx().fillEdgeProperties(this)) {
-            if (throwIfNotExist) {
-                throw new NoSuchElementException("Edge does not exist: " + this.id());
-            } else {
-                logger.warn("Edge does not exist: {}", this.id());
-                return false;
-            }
-        }
-        return true;
-    }
-
-    @Override
     public AbstractElement copy() {
-        throw new UnsupportedOperationException();
+        return ElementBuilders.edgeBuilder().from(this).build();
     }
 
     @Override
@@ -124,6 +97,6 @@ public class InternalEdge extends AbstractElement implements AGraphEdge {
     }
 
     public void assignInternalId(long id) {
-        this.internalId = id;
+        if (id != 0) this.internalId = id;
     }
 }

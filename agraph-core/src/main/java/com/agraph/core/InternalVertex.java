@@ -15,7 +15,7 @@ import org.apache.tinkerpop.gremlin.structure.util.ElementHelper;
 import org.apache.tinkerpop.gremlin.structure.util.StringFactory;
 
 import java.util.Iterator;
-import java.util.NoSuchElementException;
+import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -23,16 +23,9 @@ import java.util.Optional;
  */
 public class InternalVertex extends AbstractElement implements AGraphVertex {
 
-    public InternalVertex(DefaultAGraph graph, VertexId id) {
-        super(graph, id, Vertex.DEFAULT_LABEL);
-    }
-
-    public InternalVertex(DefaultAGraph graph, VertexId id, String label) {
-        super(graph, id, label, State.NEW);
-    }
-
-    public InternalVertex(DefaultAGraph graph, VertexId id, String label, State state) {
-        super(graph, id, label, state);
+    public InternalVertex(DefaultAGraph graph, VertexId id, String label, State state,
+                          Map<String, AGraphVertexProperty<?>> props) {
+        super(graph, id, label, state, props);
     }
 
     @Override
@@ -60,7 +53,13 @@ public class InternalVertex extends AbstractElement implements AGraphVertex {
         Preconditions.checkState(vertex.isPresent(),
                 "Could not add edge to a removed vertex: {}", vertex);
 
-        InternalEdge edge = new InternalEdge(this.graph(), label, this, vertex);
+        InternalEdge edge = ElementBuilders.edgeBuilder()
+                .graph(this.graph())
+                .label(label)
+                .outVertex(this)
+                .inVertex(vertex)
+                .internalId(0)
+                .build();
         ElementHelper.attachProperties(edge, keyValues);
 
         return this.tx().addEdge(edge);
@@ -92,11 +91,10 @@ public class InternalVertex extends AbstractElement implements AGraphVertex {
                     .blockingIterable()
                     .iterator();
         } else {
-            return Observable.fromIterable(this.autoFilledProperties().values())
-                    .filter(AGraphProperty::isPresent)
-                    .map(e -> (VertexProperty<V>) e)
-                    .blockingIterable()
-                    .iterator();
+            return Iterators.transform(
+                    this.autoFilledProperties().values().iterator(),
+                    v -> (VertexProperty<V>) v
+            );
         }
     }
 
@@ -112,30 +110,13 @@ public class InternalVertex extends AbstractElement implements AGraphVertex {
 
     @Override
     public void remove() {
-        super.remove();
+        this.updateState(State.REMOVED);
         this.tx().removeVertex(this);
     }
 
     @Override
-    public boolean ensureFilledProperties(boolean throwIfNotExist) {
-        if (!isLagged()) {
-            logger.debug("Vertex has already loaded");
-            return true;
-        }
-        if (!this.tx().fillVertexProperties(this)) {
-            if (throwIfNotExist) {
-                throw new NoSuchElementException("Vertex does not exist: " + this.id());
-            } else {
-                logger.debug("Vertex does not exist: {}", this.id());
-                return false;
-            }
-        }
-        return true;
-    }
-
-    @Override
     public AbstractElement copy() {
-        throw new UnsupportedOperationException();
+        return ElementBuilders.vertexBuilder().from(this).build();
     }
 
     @Override
