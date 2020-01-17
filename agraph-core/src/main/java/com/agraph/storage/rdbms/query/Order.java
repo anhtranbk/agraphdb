@@ -1,36 +1,26 @@
 package com.agraph.storage.rdbms.query;
 
-public interface Order {
+import lombok.Getter;
+import lombok.experimental.Accessors;
 
-    String column();
+@Getter
+public class Order {
 
-    boolean isAsc();
+    @Accessors(fluent = true)
+    private final String column;
 
-    static Order asc(String col) {
-        return new Order() {
-            @Override
-            public String column() {
-                return col;
-            }
+    private final boolean asc;
 
-            @Override
-            public boolean isAsc() {
-                return true;
-            }
-        };
+    public Order(String column, boolean asc) {
+        this.column = column;
+        this.asc = asc;
     }
 
-    static Order desc(String col) {
-        return new Order() {
-            @Override
-            public String column() {
-                return col;
-            }
+    public static Order asc(String col) {
+        return new Order(col, true);
+    }
 
-            @Override
-            public boolean isAsc() {
-                return false;
-            }
-        };
+    public static Order desc(String col) {
+        return new Order(col, false);
     }
 }
