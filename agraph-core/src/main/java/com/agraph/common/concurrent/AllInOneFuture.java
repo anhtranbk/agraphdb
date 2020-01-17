@@ -1,5 +1,10 @@
 package com.agraph.common.concurrent;
 
+import com.google.common.util.concurrent.FutureCallback;
+import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.ListenableFuture;
+import org.apache.tinkerpop.gremlin.structure.T;
+import org.checkerframework.checker.nullness.qual.Nullable;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -7,6 +12,7 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executor;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -14,14 +20,12 @@ import java.util.concurrent.TimeoutException;
 /**
  * @author <a href="https://github.com/tjeubaoit">tjeubaoit</a>
  */
-public class AllInOneFuture<T> implements Future<List<T>> {
+public class AllInOneFuture<T> extends AbstractListenableFuture<List<T>> {
 
-    private final boolean allMustSuccess; // currently do not use this field
     private final List<Future<T>> futures = new LinkedList<>();
 
     @SuppressWarnings("unchecked")
-    private AllInOneFuture(boolean allMustSuccess, Iterable<? extends Future<? extends T>> futures) {
-        this.allMustSuccess = allMustSuccess;
+    AllInOneFuture(Iterable<? extends Future<? extends T>> futures) {
         futures.forEach(fut -> AllInOneFuture.this.futures.add((Future<T>) fut));
     }
 
@@ -66,24 +70,5 @@ public class AllInOneFuture<T> implements Future<List<T>> {
             list.add(fut.get(timeout, unit));
         }
         return list;
-    }
-
-    public static <T> AllInOneFuture<T> from(boolean allMustSuccess,
-                                             Iterable<? extends Future<? extends T>> futures) {
-        return new AllInOneFuture<>(allMustSuccess, futures);
-    }
-
-    public static <T> AllInOneFuture<T> from(Iterable<? extends Future<? extends T>> futures) {
-        return from(true, futures);
-    }
-
-    @SafeVarargs
-    public static <T> AllInOneFuture<T> from(boolean allMustSuccess, Future<? extends T>... futures) {
-        return from(allMustSuccess, Arrays.asList(futures));
-    }
-
-    @SafeVarargs
-    public static <T> AllInOneFuture<T> from(Future<? extends T>... futures) {
-        return from(true, futures);
     }
 }

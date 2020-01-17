@@ -11,7 +11,7 @@ import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
 
-public class FutureAdapter<S, R> implements ListenableFuture<R> {
+public class FutureAdapter<S, R> extends AbstractListenableFuture<R> {
 
     private final Future<S> src;
     private final Function<S, R> func;
@@ -55,16 +55,7 @@ public class FutureAdapter<S, R> implements ListenableFuture<R> {
     public void addListener(@NotNull Runnable runnable, @NotNull Executor executor) {
         if (src instanceof ListenableFuture) {
             ((ListenableFuture<S>) src).addListener(runnable, executor);
-        } else {
-            executor.execute(() -> {
-                try {
-                    get();
-                    runnable.run();
-                } catch (ExecutionException | InterruptedException e) {
-                    throw new RuntimeException(e);
-                }
-            });
-        }
+        } else super.addListener(runnable, executor);
     }
 
     public static <S, R> FutureAdapter<S, R> from(Future<S> src, Function<S, R> func) {

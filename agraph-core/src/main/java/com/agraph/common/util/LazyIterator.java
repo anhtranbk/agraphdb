@@ -24,7 +24,7 @@ public class LazyIterator<E> implements Iterator<E> {
     @Override
     public boolean hasNext() {
         if (underlying == null) {
-            logger.debug("Call function to init underlying iterator");
+            logger.debug("Calling init function to create underlying iterator");
             underlying = this.func.apply();
         }
         return underlying.hasNext();

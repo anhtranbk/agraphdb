@@ -16,10 +16,11 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class TaskManager {
 
+    private static final Logger logger = LoggerFactory.getLogger(TaskManager.class);
+
     private final int errorThreshold;
     private final ExecutorService executor;
     private final AtomicInteger errorCounter = new AtomicInteger();
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     public TaskManager(Config config, ExecutorService executor) {
         this(config.getInt("task_manager.error.threshold", 100), executor);
