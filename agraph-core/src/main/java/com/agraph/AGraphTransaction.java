@@ -1,42 +1,45 @@
 package com.agraph;
 
-import com.agraph.core.EdgeId;
-import com.agraph.core.VertexId;
+import com.agraph.core.type.EdgeId;
+import com.agraph.core.type.VertexId;
 import org.apache.tinkerpop.gremlin.structure.Direction;
-import org.apache.tinkerpop.gremlin.structure.Edge;
-import org.apache.tinkerpop.gremlin.structure.T;
 import org.apache.tinkerpop.gremlin.structure.Transaction;
-import org.apache.tinkerpop.gremlin.structure.Vertex;
 
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.Optional;
 
 public interface AGraphTransaction extends Transaction {
 
+    long id();
+
     AGraph graph();
 
-    Optional<AGraphVertex> findVertex(VertexId vertexId, String label);
+    Optional<AGraphVertex> findVertex(VertexId vertexId);
 
-    Iterator<AGraphVertex> vertices(final Object... vertexIds);
+    Iterator<AGraphVertex> vertices(Iterable<VertexId> vertexIds);
 
-    AGraphVertex addVertex(final Object... keyValues);
-
-    default AGraphVertex addVertex(final String label) {
-        return this.addVertex(T.label, label);
+    default Iterator<AGraphVertex> vertices() {
+        return vertices(Collections.emptyList());
     }
+
+    AGraphVertex addVertex(final AGraphVertex vertex);
 
     void removeVertex(AGraphVertex vertex);
 
     Optional<AGraphEdge> findEdge(EdgeId edgeId);
 
-    Iterator<AGraphVertex> edges(final Object... edgeIds);
+    Iterator<AGraphEdge> edges(Iterable<EdgeId> edgeIds);
 
-    Iterator<Edge> edges(AGraphVertex ownVertex, Direction direction, String... edgeLabels);
+    default Iterator<AGraphEdge> edges() {
+        return edges(Collections.emptyList());
+    }
 
-    Iterator<Vertex> vertices(AGraphVertex ownVertex, Direction direction, String... edgeLabels);
+    Iterator<AGraphEdge> edges(AGraphVertex ownVertex, Direction direction, String... edgeLabels);
 
-    AGraphEdge addEdge(final String label, final Vertex outVertex, final Vertex inVertex,
-                       final Object... keyValues);
+    Iterator<AGraphVertex> vertices(AGraphVertex ownVertex, Direction direction, String... edgeLabels);
+
+    AGraphEdge addEdge(final AGraphEdge edge);
 
     void removeEdge(AGraphEdge edge);
 

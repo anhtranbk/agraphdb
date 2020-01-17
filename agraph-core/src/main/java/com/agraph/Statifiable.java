@@ -4,8 +4,6 @@ public interface Statifiable {
 
     State state();
 
-    void updateState(State state);
-
     default boolean isNew() {
         return state() == State.NEW;
     }

@@ -1,6 +1,7 @@
 package com.agraph;
 
 import com.agraph.config.Config;
+import com.agraph.core.serialize.Serializer;
 import com.agraph.core.tx.TransactionBuilder;
 import org.apache.tinkerpop.gremlin.process.computer.GraphComputer;
 import org.apache.tinkerpop.gremlin.structure.Graph;
@@ -10,7 +11,11 @@ import java.io.Closeable;
 
 public interface AGraph extends Graph, Closeable {
 
-    Config getConfig();
+    String name();
+
+    Config config();
+
+    Serializer serializer();
 
     AGraphTransaction newTransaction();
 

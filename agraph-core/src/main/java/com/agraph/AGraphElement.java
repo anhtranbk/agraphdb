@@ -20,6 +20,14 @@ public interface AGraphElement extends Element, Statifiable, Cloneable {
         return graph().tx();
     }
 
+    default boolean isVertex() {
+        return id().isVertex();
+    }
+
+    default boolean isEdge() {
+        return id().isEdge();
+    }
+
     Map<String, AGraphProperty<?>> asPropertiesMap();
 
     Map<String, Object> asValuesMap();
@@ -30,7 +38,7 @@ public interface AGraphElement extends Element, Statifiable, Cloneable {
      *
      * @return property value of null if property does not exist
      */
-    <V> V propertyValue(String key);
+    <V> V valueOrNull(String key);
 
     void resetProperties();
 
