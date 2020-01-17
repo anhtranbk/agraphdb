@@ -1,42 +1,38 @@
 package com.agraph.storage.rdbms;
 
 import com.google.common.base.Preconditions;
+import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 
-public interface Column {
+@Accessors(fluent = true)
+@Getter
+public class Column {
 
-    enum DataType {
-        BYTE,
-        SHORT,
-        INTEGER,
-        LONG,
-        FLOAT,
-        DOUBLE,
-        STRING,
-        BYTE_ARRAY,
-        STRING_ARRAY
+    private Column(String name, DataType type, int length, Object defaultValue,
+                   boolean allowNull, boolean autoIncrement) {
+        this.name = name;
+        this.type = type;
+        this.length = length;
+        this.defaultValue = defaultValue;
+        this.allowNull = allowNull;
+        this.autoIncrement = autoIncrement;
     }
 
-    String name();
+    private final String name;
+    private final DataType type;
+    private final int length;
+    private final Object defaultValue;
+    private final boolean allowNull;
+    private final boolean autoIncrement;
 
-    DataType dataType();
-
-    int length();
-
-    Object defaultValue();
-
-    boolean allowNull();
-
-    boolean autoIncrement();
-
-    static Builder builder(String name, DataType dataType) {
+    public static Builder builder(String name, DataType dataType) {
         return new Builder(name, dataType);
     }
 
     @Accessors(fluent = true, chain = true)
     @Setter
-    class Builder {
+    public static class Builder {
         String name;
         DataType type;
         int length;
@@ -52,39 +48,23 @@ public interface Column {
         public Column build() {
             Preconditions.checkArgument(length > 0 || type != DataType.STRING,
                     "Cannot create column String with zero-length");
-
-            final Builder delegate = Builder.this;
-            return new Column() {
-                @Override
-                public String name() {
-                    return delegate.name;
-                }
-
-                @Override
-                public DataType dataType() {
-                    return delegate.type;
-                }
-
-                @Override
-                public int length() {
-                    return delegate.length;
-                }
-
-                @Override
-                public Object defaultValue() {
-                    return delegate.defaultValue;
-                }
-
-                @Override
-                public boolean allowNull() {
-                    return delegate.allowNull;
-                }
-
-                @Override
-                public boolean autoIncrement() {
-                    return delegate.autoIncrement;
-                }
-            };
+            return new Column(name, type, length, defaultValue, allowNull, autoIncrement);
         }
+    }
+
+    public enum DataType {
+        BOOLEAN,
+        BYTE,
+        SHORT,
+        INT,
+        LONG,
+        FLOAT,
+        DOUBLE,
+        DATE,
+        DATETIME,
+        STRING,
+        BYTE_ARRAY,
+        BLOB,
+        CLOB
     }
 }
