@@ -9,6 +9,7 @@ import com.agraph.core.type.EdgeId;
 import com.agraph.core.type.ElementId;
 import com.agraph.core.type.VertexId;
 import com.google.common.base.Preconditions;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.experimental.Accessors;
 import org.apache.tinkerpop.gremlin.structure.Property;
@@ -37,6 +38,7 @@ public abstract class AbstractElement implements AGraphElement {
     private final String label;
     private State state;
 
+    @Getter(AccessLevel.NONE)
     private final Map<String, AGraphProperty<?>> properties = new HashMap<>();
     private final Set<AGraphProperty<?>> removedProps = new HashSet<>();
     private final Set<AGraphProperty<?>> modifiedProps = new HashSet<>();
