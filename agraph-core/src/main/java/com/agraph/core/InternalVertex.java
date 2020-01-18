@@ -105,7 +105,7 @@ public class InternalVertex extends AbstractElement implements AGraphVertex {
 
     @Override
     public Iterator<Vertex> vertices(Direction direction, String... edgeLabels) {
-        return Iterators.transform(this.tx().vertices(this, direction, edgeLabels), e -> e);
+        return Iterators.transform(this.tx().vertices(this, direction, edgeLabels), v -> v);
     }
 
     @Override

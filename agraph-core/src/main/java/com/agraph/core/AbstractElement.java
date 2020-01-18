@@ -186,13 +186,13 @@ public abstract class AbstractElement implements AGraphElement {
             logger.debug("Element has already loaded");
             return true;
         }
+
         if (isVertex()) {
             Optional<AGraphVertex> ops = this.tx().findVertex((VertexId) this.id);
             if (ops.isPresent()) {
                 this.properties.putAll(ops.get().asPropertiesMap());
                 return true;
             }
-
         } else {
             Optional<AGraphEdge> ops = this.tx().findEdge((EdgeId) this.id);
             if (ops.isPresent()) {
@@ -200,6 +200,7 @@ public abstract class AbstractElement implements AGraphElement {
                 return true;
             }
         }
+
         if (throwIfNotExist) {
             throw new NoSuchElementException(Strings.format("Element does not exist: %s", this.id));
         } else {
