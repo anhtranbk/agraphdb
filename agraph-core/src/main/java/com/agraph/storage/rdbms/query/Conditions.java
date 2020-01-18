@@ -1,5 +1,7 @@
 package com.agraph.storage.rdbms.query;
 
+import com.agraph.common.tuple.Tuple2;
+
 import java.util.Arrays;
 
 import static com.agraph.storage.rdbms.query.Condition.Operator;
@@ -36,6 +38,10 @@ public class Conditions {
 
     public static SingleCondition notNull(String col, Object obj) {
         return new SingleCondition(col, Operator.IS_NOT_NULL, obj);
+    }
+
+    public static SingleCondition range(String col, Number obj1, Number obj2) {
+        return new SingleCondition(col, Operator.RANGE, new Tuple2<>(obj1, obj2));
     }
 
     public static SingleCondition in(String col, Object obj) {

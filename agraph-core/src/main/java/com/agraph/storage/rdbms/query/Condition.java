@@ -11,6 +11,7 @@ public interface Condition {
         GREATER_OR_EQUALS(">="),
         IN("IN"),
         NOT_IN("NOT IN"),
+        RANGE("BETWEEN"),
         IS_NULL("IS NULL"),
         IS_NOT_NULL("IS NOT NULL"),
         OR("OR"),

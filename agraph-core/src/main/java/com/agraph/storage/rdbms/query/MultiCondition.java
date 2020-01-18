@@ -11,7 +11,7 @@ public class MultiCondition implements Condition {
     private final Operator operator;
     private final List<Condition> conditions;
 
-    public MultiCondition(Operator operator, List<Condition> conditions) {
+    MultiCondition(Operator operator, List<Condition> conditions) {
         this.operator = operator;
         this.conditions = conditions;
     }

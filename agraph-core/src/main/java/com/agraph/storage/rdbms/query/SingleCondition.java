@@ -5,10 +5,10 @@ import java.util.Objects;
 public class SingleCondition implements Condition {
 
     private final String column;
-    private final Condition.Operator operator;
+    private final Operator operator;
     private final Object args;
 
-    public SingleCondition(String col, Condition.Operator operator, Object args) {
+    SingleCondition(String col, Operator operator, Object args) {
         this.column = col;
         this.operator = operator;
         this.args = args;
@@ -23,7 +23,7 @@ public class SingleCondition implements Condition {
     }
 
     @Override
-    public Condition.Operator operator() {
+    public Operator operator() {
         return this.operator;
     }
 
@@ -34,7 +34,11 @@ public class SingleCondition implements Condition {
 
     @Override
     public String asString() {
-        return column + " " + operator.symbol + " %s";
+        if (operator == Operator.RANGE) {
+            return column + " " + operator.symbol + " %s AND %s";
+        } else {
+            return column + " " + operator.symbol + " %s";
+        }
     }
 
     @Override
