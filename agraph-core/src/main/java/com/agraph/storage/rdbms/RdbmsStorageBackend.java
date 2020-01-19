@@ -1,10 +1,15 @@
 package com.agraph.storage.rdbms;
 
+import com.agraph.storage.Index;
 import com.agraph.storage.Mutation;
+import com.agraph.storage.Result;
 import com.agraph.storage.StorageBackend;
 import com.agraph.storage.StorageFeatures;
+import com.agraph.storage.rdbms.schema.TableDefine;
 import com.agraph.storage.rdbms.query.Query;
+import com.google.common.util.concurrent.ListenableFuture;
 
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
@@ -13,22 +18,20 @@ import java.util.List;
  */
 public interface RdbmsStorageBackend extends StorageBackend {
 
-    boolean isTableExists(String tableName);
+    ListenableFuture<Boolean> isTableExists(String tableName);
 
-    void createTable(String tableName, Iterable<Column> columns, String... keys);
+    ListenableFuture<?> createTable(TableDefine tableDefine);
 
-    void createIndices(String tableName, Iterable<Index> indices);
+    ListenableFuture<?> createIndex(Index index);
 
-    void mutate(String tableName, Iterable<Mutation> mutations);
-
-    void delete(String tableName, String... keys);
+    ListenableFuture<?> mutate(Collection<Mutation> mutations);
 
     Iterator<Result> query(Query query);
 
     Iterator<Result> rawQuery(String query, List<Object> params);
 
     @Override
-    default StorageFeatures getFeatures() {
+    default StorageFeatures features() {
         return new RdbmsStorageFeature();
     }
 }

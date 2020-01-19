@@ -4,9 +4,9 @@ import com.agraph.backend.BackendTransaction;
 
 public interface StorageBackend extends AutoCloseable {
 
-    StorageFeatures getFeatures();
+    StorageFeatures features();
 
-    BackendTransaction getTx();
+    BackendTransaction backendTx();
 
     @Override
     void close();

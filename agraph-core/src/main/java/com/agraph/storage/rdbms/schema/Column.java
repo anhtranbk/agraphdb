@@ -1,4 +1,4 @@
-package com.agraph.storage.rdbms;
+package com.agraph.storage.rdbms.schema;
 
 import com.google.common.base.Preconditions;
 import lombok.Getter;
@@ -9,7 +9,7 @@ import lombok.experimental.Accessors;
 @Getter
 public class Column {
 
-    private Column(String name, DataType type, int length, Object defaultValue,
+    private Column(String name, DBType type, int length, Object defaultValue,
                    boolean allowNull, boolean autoIncrement) {
         this.name = name;
         this.type = type;
@@ -20,51 +20,35 @@ public class Column {
     }
 
     private final String name;
-    private final DataType type;
+    private final DBType type;
     private final int length;
     private final Object defaultValue;
     private final boolean allowNull;
     private final boolean autoIncrement;
 
-    public static Builder builder(String name, DataType dataType) {
-        return new Builder(name, dataType);
+    public static Builder builder(String name, DBType DBType) {
+        return new Builder(name, DBType);
     }
 
     @Accessors(fluent = true, chain = true)
     @Setter
     public static class Builder {
-        String name;
-        DataType type;
-        int length;
-        Object defaultValue;
-        boolean allowNull = true;
-        boolean autoIncrement = false;
+        private String name;
+        private DBType type;
+        private int length;
+        private Object defaultValue;
+        private boolean allowNull = true;
+        private boolean autoIncrement = false;
 
-        Builder(String name, DataType type) {
+        Builder(String name, DBType type) {
             this.name = name;
             this.type = type;
         }
 
         public Column build() {
-            Preconditions.checkArgument(length > 0 || type != DataType.STRING,
-                    "Cannot create column String with zero-length");
+            Preconditions.checkArgument(length > 0 || (type != DBType.VARCHAR && type != DBType.CHAR),
+                    "Cannot create CHAR/VARCHAR column with zero-length");
             return new Column(name, type, length, defaultValue, allowNull, autoIncrement);
         }
-    }
-
-    public enum DataType {
-        BOOLEAN,
-        BYTE,
-        SHORT,
-        INT,
-        LONG,
-        FLOAT,
-        DOUBLE,
-        DATE,
-        DATETIME,
-        STRING,
-        BYTE_ARRAY,
-        BLOB,
-        CLOB
     }
 }

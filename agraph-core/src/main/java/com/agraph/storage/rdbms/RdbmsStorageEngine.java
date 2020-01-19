@@ -14,12 +14,12 @@ public abstract class RdbmsStorageEngine implements StorageEngine {
     }
 
     @Override
-    public AGraph getGraph() {
+    public AGraph graph() {
         return graph;
     }
 
     @Override
-    public RdbmsStorageBackend getBackend() {
+    public RdbmsStorageBackend backend() {
         return backend;
     }
 

@@ -1,40 +1,52 @@
 package com.agraph.storage;
 
-import com.agraph.AGraphEdge;
-import com.agraph.AGraphVertex;
 import com.agraph.GraphComponent;
-import com.agraph.core.EdgeId;
-import com.agraph.core.VertexId;
+import com.agraph.config.Config;
+import com.agraph.core.InternalEdge;
+import com.agraph.core.InternalVertex;
+import com.agraph.core.type.EdgeId;
+import com.agraph.core.type.VertexId;
 import org.apache.tinkerpop.gremlin.structure.Direction;
 
 import java.util.Iterator;
-import java.util.concurrent.Future;
 
 public interface StorageEngine extends GraphComponent, AutoCloseable {
 
-    Future<?> initialize();
+    void open(Config conf);
 
-    Iterator<AGraphVertex> vertices(String... labels);
+    boolean isOpened();
 
-    Iterator<AGraphVertex> vertices(Iterable<VertexId> vertexIds, String... labels);
+    void initialize();
 
-    Future<?> mutateVertices(Iterable<AGraphVertex> vertices);
+    boolean isInitialized();
 
-    Future<?> deleteVertices(Iterable<VertexId> vertexIds, String... labels);
+    StorageBackend backend();
 
-    Iterator<AGraphEdge> edges(Iterable<EdgeId> edgeIds);
+    void beginBackendTx();
 
-    Iterator<AGraphEdge> edges(VertexId vertexId, Direction direction, String... labels);
+    void commitBackendTx();
 
-    Iterator<AGraphEdge> edges(VertexId ownVertexId, Direction direction,
-                               Iterable<VertexId> otherVertexIds, String... labels);
-
-    Future<?> mutateEdges(Iterable<AGraphEdge> edges);
-
-    Future<?> deleteEdges(Iterable<EdgeId> edgeIds);
-
-    StorageBackend getBackend();
+    void rollbackBackendTx();
 
     @Override
     void close();
+
+    Iterator<InternalVertex> vertices(String... labels);
+
+    Iterator<InternalVertex> vertices(Iterable<VertexId> vertexIds, String... labels);
+
+    Iterator<InternalEdge> edges(Iterable<EdgeId> edgeIds);
+
+    Iterator<InternalEdge> edges(VertexId ownVertexId, Direction direction, String... labels);
+
+    Iterator<InternalEdge> edges(VertexId ownVertexId, Direction direction,
+                                 Iterable<VertexId> otherVertexIds, String... labels);
+
+    void addVertexModifications(Iterable<InternalVertex> vertices);
+
+    void addVertexRemovals(Iterable<InternalVertex> vertices);
+
+    void addEdgeModifications(Iterable<InternalEdge> edges);
+
+    void addEdgeRemovals(Iterable<InternalEdge> edges);
 }

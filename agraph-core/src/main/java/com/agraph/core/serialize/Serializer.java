@@ -1,6 +1,7 @@
 package com.agraph.core.serialize;
 
 import com.agraph.core.type.DataType;
+import com.agraph.core.type.VertexId;
 import com.agraph.exc.SerializationException;
 
 import java.io.IOException;
@@ -8,18 +9,22 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Date;
 
-import static com.agraph.core.type.DataType.*;
+import static com.agraph.core.type.DataType.BOOLEAN;
+import static com.agraph.core.type.DataType.DATE;
+import static com.agraph.core.type.DataType.DOUBLE;
+import static com.agraph.core.type.DataType.FLOAT;
+import static com.agraph.core.type.DataType.INT;
+import static com.agraph.core.type.DataType.LONG;
+import static com.agraph.core.type.DataType.OBJECT;
+import static com.agraph.core.type.DataType.RAW;
+import static com.agraph.core.type.DataType.STRING;
+import static com.agraph.core.type.DataType.UUID;
 
 @SuppressWarnings("unchecked")
 public interface Serializer {
 
-    default <T> void write(T obj, OutputStream out) {
-        try {
-            byte[] serialized = write(obj);
-            out.write(serialized);
-        } catch (IOException e) {
-            throw new SerializationException(e);
-        }
+    default byte[] write(VertexId vId) {
+        return write(vId.type(), vId.value());
     }
 
     default byte[] write(long val) {
@@ -54,7 +59,16 @@ public interface Serializer {
         return write(DATE, val);
     }
 
-    default <T> byte[] write(T obj) {
+    default <T> void writeUnsafe(T obj, OutputStream out) {
+        try {
+            byte[] serialized = writeUnsafe(obj);
+            out.write(serialized);
+        } catch (IOException e) {
+            throw new SerializationException(e);
+        }
+    }
+
+    default <T> byte[] writeUnsafe(T obj) {
         Class<?> type = obj.getClass();
         if (type.isAssignableFrom(Long.class)) {
             return write(LONG, obj);
