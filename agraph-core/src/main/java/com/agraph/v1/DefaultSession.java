@@ -1,10 +1,9 @@
 package com.agraph.v1;
 
 import com.google.common.base.Preconditions;
-import com.google.common.collect.Iterables;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.agraph.common.concurrent.FutureAdapter;
-import com.agraph.common.util.IterableAdapter;
+import com.agraph.common.util.Iterables;
 import com.agraph.common.util.Utils;
 import com.agraph.v1.repository.EdgeRepository;
 import com.agraph.v1.repository.RepositoryFactory;
@@ -53,7 +52,7 @@ public class DefaultSession implements GraphSession {
     public EdgeSet edges(Vertex vertex, Direction direction, String... edgeLabels) {
         Iterable<Edge> results;
         if (direction.equals(Direction.BOTH)) {
-            results = Iterables.concat(
+            results = com.google.common.collect.Iterables.concat(
                     findEdges(vertex, Direction.OUT, edgeLabels),
                     findEdges(vertex, Direction.IN, edgeLabels));
         } else {
@@ -77,7 +76,7 @@ public class DefaultSession implements GraphSession {
                     }).blockingIterable();
             iterableList.add(edges);
         }
-        return EdgeSet.convert(Iterables.concat(iterableList));
+        return EdgeSet.convert(com.google.common.collect.Iterables.concat(iterableList));
     }
 
     private Iterable<Edge> findEdges(Vertex vertex, Direction direction, String... edgeLabels) {
@@ -93,7 +92,7 @@ public class DefaultSession implements GraphSession {
         for (String label : edgeLabels) {
             iterableList.add(edgeRepository.findByVertex(vertex, direction, label));
         }
-        return Iterables.concat(iterableList);
+        return com.google.common.collect.Iterables.concat(iterableList);
     }
 
     @Override
@@ -115,7 +114,7 @@ public class DefaultSession implements GraphSession {
         for (String label : labels) {
             listVertices.add(vertexRepository.findByLabel(label));
         }
-        return VertexSet.convert(Iterables.concat(listVertices));
+        return VertexSet.convert(com.google.common.collect.Iterables.concat(listVertices));
     }
 
     @Override
@@ -126,7 +125,7 @@ public class DefaultSession implements GraphSession {
 
     @Override
     public VertexSet vertices(Vertex vertex, Direction direction, String... edgeLabels) {
-        return VertexSet.convert(IterableAdapter.from(
+        return VertexSet.convert(Iterables.transform(
                 edges(vertex, direction, edgeLabels),
                 edge -> edge.outVertex().equals(vertex) ? edge.inVertex() : edge.outVertex()));
     }
@@ -134,7 +133,7 @@ public class DefaultSession implements GraphSession {
     @Override
     public VertexSet verticesByAdjVertexLabels(Vertex vertex, Direction direction,
                                                String... adjVertexLabels) {
-        return VertexSet.convert(IterableAdapter.from(
+        return VertexSet.convert(Iterables.transform(
                 edgesByAdjVertexLabels(vertex, direction, adjVertexLabels),
                 edge -> edge.outVertex().equals(vertex) ? edge.inVertex() : edge.outVertex()));
     }
