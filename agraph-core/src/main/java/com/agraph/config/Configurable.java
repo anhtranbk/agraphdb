@@ -19,7 +19,7 @@ public interface Configurable {
             try {
                 field.setAccessible(true);
                 ConfigDescriptor descriptor = field.getAnnotation(ConfigDescriptor.class);
-                String name = descriptor.value();
+                String name = descriptor.name();
                 String defVal = descriptor.defaultValue();
 
                 if (!conf.containsKey(name) && !descriptor.allowNull()) {
@@ -71,6 +71,7 @@ public interface Configurable {
     static void validateNumberField(ConfigDescriptor descriptor, double val) {
         double max = descriptor.maxValue();
         double min = descriptor.minValue();
-        Preconditions.checkArgument(val <= max && val >= min, "Field value is not in range");
+        Preconditions.checkArgument(val <= max && val >= min,
+                "Field value %s is not in range (%s, %s)", val, min, max);
     }
 }
