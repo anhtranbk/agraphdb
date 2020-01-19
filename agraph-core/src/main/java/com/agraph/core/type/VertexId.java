@@ -65,6 +65,11 @@ public class VertexId extends ElementId {
     }
 
     @Override
+    public byte[] asBytes() {
+        return Types.encode(this.type, this.value);
+    }
+
+    @Override
     public boolean isEdge() {
         return false;
     }

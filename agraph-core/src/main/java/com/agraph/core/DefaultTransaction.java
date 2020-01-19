@@ -36,7 +36,6 @@ public class DefaultTransaction implements AGraphTransaction {
         BEGIN, COMMITTING, COMMITT_FAIL, ROLLBACKING, ROLLBACK_FAIL, CLEAN
     }
 
-    private static final int ELEMENT_CACHE_CAPACITY = 5000;
     private static final Logger logger = LoggerFactory.getLogger(DefaultTransaction.class);
 
     private final DefaultAGraph graph;
@@ -46,8 +45,8 @@ public class DefaultTransaction implements AGraphTransaction {
     private final Map<VertexId, InternalVertex> vertexMap = new HashMap<>();
     private final Map<EdgeId, InternalEdge> edgeMap = new HashMap<>();
 
-    private final Set<InternalVertex> rVertices = new HashSet<>();
-    private final Set<InternalEdge> rEdges = new HashSet<>();
+    private final Set<InternalVertex> rmVertices = new HashSet<>();
+    private final Set<InternalEdge> rmEdges = new HashSet<>();
 
     @Getter
     private boolean hasModifications;
@@ -131,8 +130,10 @@ public class DefaultTransaction implements AGraphTransaction {
         this.hasModifications = true;
         InternalVertex vertex = this.vertexMap.remove(aVertex.id());
         if (vertex != null) {
+            if (!vertex.isNew()) {
+                this.rmVertices.add(vertex);
+            }
             logger.debug("Vertex has been removed {}", vertex);
-            this.rVertices.add(vertex);
         }
     }
 
@@ -215,8 +216,10 @@ public class DefaultTransaction implements AGraphTransaction {
         this.hasModifications = true;
         InternalEdge edge = edgeMap.remove(aEdge.id());
         if (edge != null) {
+            if (!edge.isNew()) {
+                this.rmEdges.add(edge);
+            }
             logger.debug("Edge has been removed {}", edge);
-            this.rEdges.add(edge);
         }
     }
 
@@ -342,8 +345,8 @@ public class DefaultTransaction implements AGraphTransaction {
         // Clear mutations
         this.vertexMap.clear();
         this.edgeMap.clear();
-        this.rVertices.clear();
-        this.rEdges.clear();
+        this.rmVertices.clear();
+        this.rmEdges.clear();
     }
 
     private void doReadWrite() {
@@ -355,18 +358,10 @@ public class DefaultTransaction implements AGraphTransaction {
                 .filter(e -> e.isModified() || e.isNew())
                 .blockingIterable(edgeMap.size());
 
-        this.storageEngine.mutateVertices(modifiedVertices);
-        this.storageEngine.mutateEdges(modifiedEdges);
+        this.storageEngine.addVertexModifications(modifiedVertices);
+        this.storageEngine.addEdgeModifications(modifiedEdges);
 
-        this.storageEngine.deleteVertices(
-                Observable.fromIterable(rVertices)
-                        .map(InternalVertex::id)
-                        .blockingIterable(rVertices.size())
-        );
-        this.storageEngine.deleteEdges(
-                Observable.fromIterable(rEdges)
-                        .map(InternalEdge::id)
-                        .blockingIterable(rEdges.size())
-        );
+        this.storageEngine.addVertexRemovals(rmVertices);
+        this.storageEngine.addEdgeRemovals(rmEdges);
     }
 }

@@ -9,5 +9,4 @@ public interface BackendTransaction extends AutoCloseable {
     boolean autoCommit();
 
     void close();
-
 }
