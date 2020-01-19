@@ -9,9 +9,9 @@ import org.apache.tinkerpop.gremlin.structure.Direction;
 import java.util.Arrays;
 import java.util.UUID;
 
-import static com.agraph.storage.rdbms.engine.Constants.LABEL_COL;
-import static com.agraph.storage.rdbms.engine.Constants.VERTEX_DST_COL;
-import static com.agraph.storage.rdbms.engine.Constants.VERTEX_SRC_COL;
+import static com.agraph.storage.rdbms.mlae.Constants.LABEL_COL;
+import static com.agraph.storage.rdbms.mlae.Constants.VERTEX_DST_ID_COL;
+import static com.agraph.storage.rdbms.mlae.Constants.VERTEX_SRC_ID_COL;
 
 public class CommonTest {
 
@@ -19,13 +19,13 @@ public class CommonTest {
         Condition condition;
         if (direction.equals(Direction.BOTH)) {
             Condition vertexCondition = Conditions.or(
-                    Conditions.eq(VERTEX_SRC_COL, vertexId),
-                    Conditions.eq(VERTEX_DST_COL, vertexId));
+                    Conditions.eq(VERTEX_SRC_ID_COL, vertexId),
+                    Conditions.eq(VERTEX_DST_ID_COL, vertexId));
             condition = Conditions.and(
                     vertexCondition,
                     Conditions.in(LABEL_COL, Arrays.asList(labels)));
         } else {
-            String targetCol = direction.equals(Direction.IN) ? VERTEX_DST_COL : VERTEX_SRC_COL;
+            String targetCol = direction.equals(Direction.IN) ? VERTEX_DST_ID_COL : VERTEX_SRC_ID_COL;
             condition = Conditions.and(
                     Conditions.eq(targetCol, vertexId),
                     Conditions.in(LABEL_COL, Arrays.asList(labels)));
