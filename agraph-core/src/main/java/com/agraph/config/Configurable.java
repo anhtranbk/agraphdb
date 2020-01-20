@@ -68,6 +68,13 @@ public interface Configurable {
         }
     }
 
+    static void validateNumberField(ConfigDescriptor descriptor, long val) {
+        long max = (long) descriptor.maxValue();
+        long min = (long) descriptor.minValue();
+        Preconditions.checkArgument(val <= max && val >= min,
+                "Field value %s is not in range (%s, %s)", val, min, max);
+    }
+
     static void validateNumberField(ConfigDescriptor descriptor, double val) {
         double max = descriptor.maxValue();
         double min = descriptor.minValue();
