@@ -1,7 +1,7 @@
-package com.agraph.mock;
+package com.agraph.core.mock;
 
 /**
  * @author <a href="https://github.com/tjeubaoit">tjeubaoit</a>
  */
-public class MockEdge {
+public class MockVertexProperty {
 }

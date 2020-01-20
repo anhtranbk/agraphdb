@@ -1,4 +1,4 @@
-package com.agraph.mock;
+package com.agraph.core.mock;
 
 import com.agraph.core.AGraphProperty;
 import com.agraph.core.AbstractElement;

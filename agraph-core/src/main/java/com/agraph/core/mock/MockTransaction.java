@@ -1,4 +1,4 @@
-package com.agraph.mock;
+package com.agraph.core.mock;
 
 import com.agraph.AGraph;
 import com.agraph.AGraphEdge;
@@ -17,7 +17,7 @@ import java.util.function.Consumer;
 public class MockTransaction implements AGraphTransaction {
 
     @Override
-    public long id() {
+    public long txId() {
         return 0;
     }
 

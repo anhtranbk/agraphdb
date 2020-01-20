@@ -1,4 +1,4 @@
-package com.agraph.mock;
+package com.agraph.core.mock;
 
 import com.agraph.core.type.DataType;
 import com.agraph.core.type.ElementId;
