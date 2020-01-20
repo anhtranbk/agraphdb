@@ -1,4 +1,4 @@
-package com.agraph.core.type;
+package com.agraph.core.idpool;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,12 +12,12 @@ import java.util.Enumeration;
 /**
  * @author <a href="https://github.com/tjeubaoit">tjeubaoit</a>
  */
-public interface IdGenerator {
+public interface IdPool {
 
     long generate();
 
     static long createWorkerIdentifier() {
-        Logger logger = LoggerFactory.getLogger(IdGenerator.class);
+        Logger logger = LoggerFactory.getLogger(IdPool.class);
         int machinePiece;
         try {
             StringBuilder sb = new StringBuilder();

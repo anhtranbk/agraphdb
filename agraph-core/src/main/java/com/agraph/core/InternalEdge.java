@@ -35,7 +35,7 @@ public class InternalEdge extends AbstractElement implements AGraphEdge {
 
         this.inVertex = inVertex;
         this.outVertex = outVertex;
-        this.internalId = graph.getIdGenerator().generate();
+        this.internalId = graph.idPool().generate();
     }
 
     @Override

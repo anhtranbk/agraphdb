@@ -6,12 +6,13 @@ import com.agraph.AGraphTransaction;
 import com.agraph.AGraphVertex;
 import com.agraph.config.Config;
 import com.agraph.config.ConfigUtils;
+import com.agraph.core.idpool.SequenceIdPool;
 import com.agraph.core.serialize.DefaultSerializer;
 import com.agraph.core.serialize.Serializer;
 import com.agraph.core.tx.TransactionBuilder;
 import com.agraph.core.type.EdgeId;
 import com.agraph.core.type.VertexId;
-import com.agraph.core.type.IdGenerator;
+import com.agraph.core.idpool.IdPool;
 import com.google.common.collect.Iterators;
 import io.reactivex.Observable;
 import lombok.Getter;
@@ -112,7 +113,7 @@ public class DefaultAGraph implements AGraph {
         ElementHelper.legalPropertyKeyValueArray(keyValues);
 
         String label = ElementHelper.getLabelValue(keyValues).orElse(Vertex.DEFAULT_LABEL);
-        Object id = ElementHelper.getIdValue(keyValues).orElse(this.getIdGenerator().generate());
+        Object id = ElementHelper.getIdValue(keyValues).orElse(this.idPool().generate());
         VertexId vId = new VertexId(id, label);
 
         InternalVertex vertex = ElementBuilders.vertexBuilder()
@@ -152,8 +153,8 @@ public class DefaultAGraph implements AGraph {
         throw new UnsupportedOperationException();
     }
 
-    public IdGenerator getIdGenerator() {
-        throw new UnsupportedOperationException();
+    public IdPool idPool() {
+        return new SequenceIdPool();
     }
 
     private static VertexId validateAndGetVertexId(Object rawId) {

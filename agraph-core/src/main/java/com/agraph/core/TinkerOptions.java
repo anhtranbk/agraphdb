@@ -9,7 +9,7 @@ import lombok.experimental.Accessors;
 @Accessors(chain = true, fluent = true)
 public @Data class TinkerOptions implements Configurable {
 
-    @ConfigDescriptor(value = "graph.name")
+    @ConfigDescriptor(name = "graph.name")
     private String name;
 
     public TinkerOptions(Config conf) {
