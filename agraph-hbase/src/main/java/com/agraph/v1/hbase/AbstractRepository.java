@@ -77,11 +77,11 @@ public abstract class AbstractRepository implements Closeable {
 
     protected static ExecutorService initInternalThreadPool(Config conf) {
         return ThreadPool.builder()
-                .setCoreSize(conf.getInt("hbase.client.threadpool.core.size",
+                .coreSize(conf.getInt("hbase.client.threadpool.core.size",
                         Runtime.getRuntime().availableProcessors()))
-                .setQueueSize(conf.getInt("hbase.client.threadpool.queue.size", 512))
-                .setNamePrefix("HBaseClient-pool-worker")
-                .setDaemon(true)
+                .queueSize(conf.getInt("hbase.client.threadpool.queue.size", 512))
+                .namePrefix("HBaseClient-pool-worker")
+                .daemon(true)
                 .build();
     }
 
