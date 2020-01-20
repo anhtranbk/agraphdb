@@ -1,12 +1,14 @@
 package com.agraph.core.idpool;
 
+import com.google.common.base.Preconditions;
+
 import java.security.SecureRandom;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * @author <a href="https://github.com/tjeubaoit">tjeubaoit</a>
  */
-public class RandomIdPool implements IdPool {
+public class ShardedIdPool implements IdPool {
 
     private static final long EPOCH = 1483289999000L;
     private static final long WORKER_ID = IdPool.createWorkerIdentifier();
@@ -18,6 +20,14 @@ public class RandomIdPool implements IdPool {
     private static final int MAX_COUNTER = 1 << COUNTER_BITS;
     private static final int WORKER_MASK = ~(-1 << WORKER_BITS);
     private static final int COUNTER_MASK = ~(-1 << COUNTER_BITS);
+
+    private final int shards;
+
+    public ShardedIdPool(int shards) {
+        Preconditions.checkArgument(shards >= 1 && shards < 128,
+                "Number shards must be between [1, 127]");
+        this.shards = shards;
+    }
 
     @Override
     public long generate() {

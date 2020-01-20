@@ -4,6 +4,8 @@ import java.security.SecureRandom;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
+ * Sequence 64-bit ID pool inspired by Snow-flake ID with a little changes
+ *
  * @author <a href="https://github.com/tjeubaoit">tjeubaoit</a>
  */
 public class SequenceIdPool implements IdPool {
