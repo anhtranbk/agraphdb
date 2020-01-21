@@ -6,7 +6,6 @@ import com.agraph.State;
 import com.agraph.core.type.VertexId;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterators;
-import io.reactivex.Observable;
 import org.apache.tinkerpop.gremlin.structure.Direction;
 import org.apache.tinkerpop.gremlin.structure.Edge;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
@@ -14,9 +13,11 @@ import org.apache.tinkerpop.gremlin.structure.VertexProperty;
 import org.apache.tinkerpop.gremlin.structure.util.ElementHelper;
 import org.apache.tinkerpop.gremlin.structure.util.StringFactory;
 
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * @author <a href="https://github.com/tjeubaoit">tjeubaoit</a>
@@ -85,10 +86,10 @@ public class InternalVertex extends AbstractElement implements AGraphVertex {
     @Override
     public <V> Iterator<VertexProperty<V>> properties(String... keys) {
         if (keys.length > 0) {
-            return Observable.fromArray(keys)
+            return Arrays.stream(keys)
                     .map(key -> (VertexProperty<V>) this.autoFilledProperties().get(key))
                     .filter(VertexProperty::isPresent)
-                    .blockingIterable()
+                    .collect(Collectors.toList())
                     .iterator();
         } else {
             return Iterators.transform(

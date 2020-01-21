@@ -5,7 +5,6 @@ import com.agraph.State;
 import com.agraph.core.type.EdgeId;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterators;
-import io.reactivex.Observable;
 import lombok.Getter;
 import lombok.experimental.Accessors;
 import org.apache.tinkerpop.gremlin.structure.Direction;
@@ -17,6 +16,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Accessors(fluent = true)
 @Getter
@@ -67,10 +67,10 @@ public class InternalEdge extends AbstractElement implements AGraphEdge {
     @Override
     public <V> Iterator<Property<V>> properties(String... keys) {
         if (keys.length > 0) {
-            return Observable.fromArray(keys)
+            return Arrays.stream(keys)
                     .map(key -> (Property<V>) this.autoFilledProperties().get(key))
                     .filter(Property::isPresent)
-                    .blockingIterable()
+                    .collect(Collectors.toList())
                     .iterator();
         } else {
             return Iterators.transform(

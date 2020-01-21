@@ -1,16 +1,19 @@
-package com.agraph.core;
+package com.agraph.core.tx;
 
 import com.agraph.AGraph;
 import com.agraph.AGraphEdge;
 import com.agraph.AGraphTransaction;
 import com.agraph.AGraphVertex;
 import com.agraph.common.util.LazyIterator;
+import com.agraph.common.util.StreamSupports;
+import com.agraph.core.DefaultAGraph;
+import com.agraph.core.InternalEdge;
+import com.agraph.core.InternalVertex;
 import com.agraph.core.type.EdgeId;
 import com.agraph.core.type.VertexId;
 import com.agraph.storage.StorageEngine;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Iterators;
-import io.reactivex.Observable;
 import lombok.Getter;
 import lombok.experimental.Accessors;
 import org.apache.tinkerpop.gremlin.structure.Direction;
@@ -28,6 +31,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 @Accessors(fluent = true)
 public class DefaultTransaction implements AGraphTransaction {
@@ -55,14 +59,14 @@ public class DefaultTransaction implements AGraphTransaction {
     public DefaultTransaction(DefaultAGraph graph, StorageEngine storageEngine) {
         this.graph = graph;
         this.state = TxState.BEGIN;
-        this.txId = graph.getIdGenerator().generate();
+        this.txId = graph.idPool().generate();
 
         this.storageEngine = storageEngine;
         this.storageEngine.open(graph.config());
     }
 
     @Override
-    public long id() {
+    public long txId() {
         return this.txId;
     }
 
@@ -75,7 +79,6 @@ public class DefaultTransaction implements AGraphTransaction {
     public Optional<AGraphVertex> findVertex(VertexId vId) {
         InternalVertex cachedV = vertexMap.get(vId);
         if (cachedV != null && cachedV.isLoaded()) {
-            cachedV.modifiedProperties();
             logger.debug("Found vertex in transaction cache: {}", vId);
             return Optional.of(cachedV);
         }
@@ -95,10 +98,10 @@ public class DefaultTransaction implements AGraphTransaction {
         if (Iterables.isEmpty(vertexIds)) {
             cachedVertices = vertexMap.values();
         } else {
-            cachedVertices = Observable.fromIterable(vertexIds)
+            cachedVertices = StreamSupports.stream(vertexIds)
                     .map(vertexMap::get)
                     .filter(Objects::nonNull)
-                    .blockingIterable();
+                    .collect(Collectors.toList());
         }
         return Iterators.concat(
                 cachedVertices.iterator(),
@@ -160,10 +163,10 @@ public class DefaultTransaction implements AGraphTransaction {
         if (Iterables.isEmpty(edgeIds)) {
             cachedEdges = edgeMap.values();
         } else {
-            cachedEdges = Observable.fromIterable(edgeIds)
+            cachedEdges = StreamSupports.stream(edgeIds)
                     .map(edgeMap::get)
                     .filter(Objects::nonNull)
-                    .blockingIterable();
+                    .collect(Collectors.toList());
         }
         return Iterators.concat(
                 cachedEdges.iterator(),
@@ -174,9 +177,9 @@ public class DefaultTransaction implements AGraphTransaction {
     @Override
     public Iterator<AGraphEdge> edges(AGraphVertex ownVertex,
                                       Direction direction, String... edgeLabels) {
-        Iterable<InternalEdge> cachedEdges = Observable.fromIterable(edgeMap.values())
+        Iterable<InternalEdge> cachedEdges = edgeMap.values().stream()
                 .filter(e -> e.outVertex().id().equals(ownVertex.id()))
-                .blockingIterable();
+                .collect(Collectors.toList());
         return Iterators.concat(
                 cachedEdges.iterator(),
                 LazyIterator.of(() -> storageEngine.edges(ownVertex.id(), direction, edgeLabels))
@@ -338,7 +341,7 @@ public class DefaultTransaction implements AGraphTransaction {
 
     private void reset() {
         // Reset state, generate new tx ID
-        this.txId = this.graph.getIdGenerator().generate();
+        this.txId = this.graph.idPool().generate();
         this.hasModifications = false;
         this.state = TxState.BEGIN;
 
@@ -350,13 +353,13 @@ public class DefaultTransaction implements AGraphTransaction {
     }
 
     private void doReadWrite() {
-        Iterable<InternalVertex> modifiedVertices = Observable.fromIterable(vertexMap.values())
+        Iterable<InternalVertex> modifiedVertices = vertexMap.values().stream()
                 .filter(v -> v.isModified() || v.isNew())
-                .blockingIterable(vertexMap.size());
+                .collect(Collectors.toList());
 
-        Iterable<InternalEdge> modifiedEdges = Observable.fromIterable(edgeMap.values())
+        Iterable<InternalEdge> modifiedEdges = edgeMap.values().stream()
                 .filter(e -> e.isModified() || e.isNew())
-                .blockingIterable(edgeMap.size());
+                .collect(Collectors.toList());
 
         this.storageEngine.addVertexModifications(modifiedVertices);
         this.storageEngine.addEdgeModifications(modifiedEdges);
