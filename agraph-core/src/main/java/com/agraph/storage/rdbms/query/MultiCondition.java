@@ -26,11 +26,6 @@ public class MultiCondition implements Condition {
     }
 
     @Override
-    public boolean isMulti() {
-        return true;
-    }
-
-    @Override
     public String asString() {
         final String sep = " " + operator.symbol + " ";
         return "(" + Strings.join(conditions, sep) + ")";

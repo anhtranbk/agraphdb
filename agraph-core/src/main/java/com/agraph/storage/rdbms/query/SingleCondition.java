@@ -28,11 +28,6 @@ public class SingleCondition implements Condition {
     }
 
     @Override
-    public boolean isMulti() {
-        return false;
-    }
-
-    @Override
     public String asString() {
         if (operator == Operator.RANGE) {
             return column + " " + operator.symbol + " %s AND %s";

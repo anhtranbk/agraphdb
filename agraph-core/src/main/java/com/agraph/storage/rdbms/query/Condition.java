@@ -26,7 +26,10 @@ public interface Condition {
 
     Operator operator();
 
-    boolean isMulti();
-
     String asString();
+
+    default boolean isMulti() {
+        Operator op = this.operator();
+        return op == Operator.OR || op == Operator.AND;
+    }
 }
