@@ -14,17 +14,6 @@ import java.util.TreeMap;
 @SuppressWarnings("unchecked")
 public class Maps {
 
-    public static <K, V> V getAndRemove(Map<K, ?> map, K key) {
-        Object value = map.get(key);
-        map.remove(key);
-        return (V) value;
-    }
-
-    public static <K, V> V getOrNull(Map<K, ?> map, K key) {
-        Object value = map.get(key);
-        return value != null ? (V) value : null;
-    }
-
     public static Map<String, Object> initFromKeyValues(Object... keyValues) {
         Preconditions.checkArgument(keyValues.length % 2 == 0);
         Map<String, Object> map = new TreeMap<>();

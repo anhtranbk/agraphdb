@@ -4,7 +4,7 @@ import java.util.Arrays;
 import java.util.concurrent.Future;
 import java.util.function.Function;
 
-public class FutureUtils {
+public class FutureHelper {
 
     public static <S, R> FutureAdapter<S, R> transform(Future<S> src, Function<S, R> func) {
         return new FutureAdapter<>(src, func);

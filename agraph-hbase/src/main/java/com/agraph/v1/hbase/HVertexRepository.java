@@ -1,14 +1,14 @@
 package com.agraph.v1.hbase;
 
-import com.agraph.config.Config;
-import com.google.common.util.concurrent.ListenableFuture;
-import com.agraph.common.concurrent.FutureAdapter;
+import com.agraph.common.concurrent.FutureHelper;
 import com.agraph.common.util.DateTimes;
-import com.agraph.common.util.Iterables;
+import com.agraph.common.util.Iterables2;
 import com.agraph.common.util.Strings;
-import com.agraph.common.util.Utils;
+import com.agraph.common.util.Systems;
+import com.agraph.config.Config;
 import com.agraph.v1.Vertex;
 import com.agraph.v1.repository.VertexRepository;
+import com.google.common.util.concurrent.ListenableFuture;
 import org.apache.hadoop.hbase.client.Delete;
 import org.apache.hadoop.hbase.client.Get;
 import org.apache.hadoop.hbase.client.Put;
@@ -80,7 +80,7 @@ public class HVertexRepository extends BaseRepository implements VertexRepositor
                 scan.setRowPrefixFilter(rowPrefix);
                 ResultScanner scanner = table.getScanner(scan);
 
-                listVertices.add(Iterables.transform(scanner, r -> {
+                listVertices.add(Iterables2.transform(scanner, r -> {
                     Map<String, Object> props = new HashMap<>();
                     r.getFamilyMap(CF).forEach((k, v) -> props.put(Bytes.toString(k), Bytes.toString(v)));
 
@@ -107,7 +107,7 @@ public class HVertexRepository extends BaseRepository implements VertexRepositor
                 throw new HBaseRuntimeException(e);
             }
         });
-        return FutureAdapter.from(fut, o -> Collections.singleton(entity));
+        return FutureHelper.transform(fut, o -> Collections.singleton(entity));
     }
 
     @Override
@@ -128,7 +128,7 @@ public class HVertexRepository extends BaseRepository implements VertexRepositor
                 throw new HBaseRuntimeException(e);
             }
         });
-        return FutureAdapter.from(fut, o -> entities);
+        return FutureHelper.transform(fut, o -> entities);
     }
 
     private static byte[] buildRowKey(String vertexId, String label) {
@@ -142,7 +142,7 @@ public class HVertexRepository extends BaseRepository implements VertexRepositor
         byte[] row = buildRowKey(vertex.id(), vertex.label());
 
         Put put = new Put(row);
-        put.addColumn(CF, Constants.CQ_CREATED_DATE, Utils.inverseTimestamp(), DateTimes.currentDateAsBytes());
+        put.addColumn(CF, Constants.CQ_CREATED_DATE, Systems.inverseTimestamp(), DateTimes.currentDateAsBytes());
         put.addColumn(CF, CQ_HIDDEN, HBaseUtils.EMPTY);
 
         vertex.properties().forEach((k, v) -> {

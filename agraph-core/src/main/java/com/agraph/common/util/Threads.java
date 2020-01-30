@@ -32,4 +32,17 @@ public class Threads {
     public static void sleep(long duration, TimeUnit unit) {
         sleep(unit.toMillis(duration));
     }
+
+    public static String wrapWithThreadInfo(String msg) {
+        return "[" + Thread.currentThread().getName() + "-" + Thread.currentThread().getId() + "] " + msg;
+    }
+
+    public static String threadName() {
+        return Thread.currentThread().getName();
+    }
+
+    public static String threadInfo() {
+        return Strings.format("[id=%s, name=%s]",
+                Thread.currentThread().getId(), Thread.currentThread().getName());
+    }
 }

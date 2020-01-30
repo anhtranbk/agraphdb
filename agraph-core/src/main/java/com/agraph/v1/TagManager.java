@@ -1,7 +1,7 @@
 package com.agraph.v1;
 
 import com.google.common.util.concurrent.ListenableFuture;
-import com.agraph.common.util.Iterables;
+import com.agraph.common.util.Iterables2;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -46,7 +46,7 @@ public class TagManager {
     }
 
     public Iterable<String> getTags(Vertex vertex){
-        return Iterables.transform(session.vertices(vertex, Direction.OUT, "tag"),
+        return Iterables2.transform(session.vertices(vertex, Direction.OUT, "tag"),
                 AbstractElement::id);
     }
 }

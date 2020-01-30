@@ -50,7 +50,7 @@ public class NullProtector {
         }
     }
 
-    public static <K, V> V getOrNull(Map<K, ?> map, K key) {
+    public static <K, V> V getValue(Map<K, ?> map, K key) {
         Object value = map.get(key);
         return value != null ? (V) value : null;
     }

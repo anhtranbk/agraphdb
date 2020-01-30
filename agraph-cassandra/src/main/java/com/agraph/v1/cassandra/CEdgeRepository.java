@@ -1,19 +1,19 @@
 package com.agraph.v1.cassandra;
 
+import com.agraph.common.concurrent.FutureHelper;
+import com.agraph.common.util.Iterables2;
+import com.agraph.common.util.Maps;
+import com.agraph.common.util.Systems;
 import com.agraph.config.Config;
+import com.agraph.v1.Direction;
+import com.agraph.v1.Edge;
+import com.agraph.v1.Vertex;
+import com.agraph.v1.repository.EdgeRepository;
 import com.datastax.driver.core.BatchStatement;
 import com.datastax.driver.core.PreparedStatement;
 import com.datastax.driver.core.ResultSet;
 import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.ListenableFuture;
-import com.agraph.common.concurrent.FutureAdapter;
-import com.agraph.common.util.Iterables;
-import com.agraph.common.util.Maps;
-import com.agraph.common.util.Utils;
-import com.agraph.v1.Direction;
-import com.agraph.v1.Edge;
-import com.agraph.v1.Vertex;
-import com.agraph.v1.repository.EdgeRepository;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -45,7 +45,7 @@ public class CEdgeRepository extends AbstractRepository implements EdgeRepositor
 
     @Override
     public Iterable<Edge> findByVertex(Vertex src, Direction direction, String label) {
-        Preconditions.checkArgument(label == null || Utils.notEquals(direction, Direction.BOTH),
+        Preconditions.checkArgument(label == null || Systems.notEquals(direction, Direction.BOTH),
                 "Can only query bi-direction edge if label null");
 
         String query = "SELECT * FROM edges WHERE srclb = ? AND srcid = ?";
@@ -62,7 +62,7 @@ public class CEdgeRepository extends AbstractRepository implements EdgeRepositor
             rs = session.execute(query, src.label(), src.id(), directionToString(direction), label);
         }
 
-        return Iterables.transform(rs, row -> {
+        return Iterables2.transform(rs, row -> {
             String elb = row.getString("label");
             Direction d = directionFromString(row.getString("d"));
             Vertex dst = Vertex.create(row.getString("dstid"), row.getString("dstlb"));
@@ -101,7 +101,7 @@ public class CEdgeRepository extends AbstractRepository implements EdgeRepositor
                 entity.label(),
                 entity.outVertex().id()));
 
-        return FutureAdapter.from(session.executeAsync(bs), rs -> Collections.singleton(entity));
+        return FutureHelper.transform(session.executeAsync(bs), rs -> Collections.singleton(entity));
     }
 
     @Override
@@ -131,7 +131,7 @@ public class CEdgeRepository extends AbstractRepository implements EdgeRepositor
                     entity.label(),
                     entity.inVertex().id()));
         }
-        return FutureAdapter.from(session.executeAsync(bs), rs -> entities);
+        return FutureHelper.transform(session.executeAsync(bs), rs -> entities);
     }
 
     private static String directionToString(Direction direction) {

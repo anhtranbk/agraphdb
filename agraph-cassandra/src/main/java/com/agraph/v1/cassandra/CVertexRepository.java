@@ -1,19 +1,20 @@
 package com.agraph.v1.cassandra;
 
+import com.agraph.common.concurrent.FutureHelper;
+import com.agraph.common.util.DateTimes;
+import com.agraph.common.util.Iterables2;
+import com.agraph.common.util.Maps;
+import com.agraph.common.util.Systems;
 import com.agraph.config.Config;
+import com.agraph.v1.Vertex;
+import com.agraph.v1.repository.VertexRepository;
 import com.datastax.driver.core.BatchStatement;
 import com.datastax.driver.core.PreparedStatement;
 import com.datastax.driver.core.ResultSet;
 import com.datastax.driver.core.ResultSetFuture;
 import com.datastax.driver.core.Row;
+import com.google.common.collect.Iterables;
 import com.google.common.util.concurrent.ListenableFuture;
-import com.agraph.common.concurrent.FutureAdapter;
-import com.agraph.common.util.DateTimes;
-import com.agraph.common.util.Iterables;
-import com.agraph.common.util.Maps;
-import com.agraph.common.util.Utils;
-import com.agraph.v1.Vertex;
-import com.agraph.v1.repository.VertexRepository;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -75,7 +76,7 @@ public class CVertexRepository extends AbstractRepository implements VertexRepos
         for (int i = 1; i <= NUMBER_SALT; i++) {
             ResultSet rs = session.execute(query, String.valueOf(i), label);
 
-            Iterable<Vertex> vertices =  Iterables.transform(rs, row -> {
+            Iterable<Vertex> vertices =  Iterables2.transform(rs, row -> {
                 String id = row.getString("id");
                 Map<String, String> p = row.getMap("p", String.class, String.class);
                 return Vertex.create(id, label, p);
@@ -83,7 +84,7 @@ public class CVertexRepository extends AbstractRepository implements VertexRepos
             list.add(vertices);
         }
 
-        return com.google.common.collect.Iterables.concat(list);
+        return Iterables.concat(list);
     }
 
     @Override
@@ -92,7 +93,7 @@ public class CVertexRepository extends AbstractRepository implements VertexRepos
                 createSaltFrom(entity.id()),
                 entity.label(),
                 entity.id()));
-        return FutureAdapter.from(fut, rs -> Collections.singleton(entity));
+        return FutureHelper.transform(fut, rs -> Collections.singleton(entity));
     }
 
     @Override
@@ -111,7 +112,7 @@ public class CVertexRepository extends AbstractRepository implements VertexRepos
                     vertex.label(),
                     vertex.id(),
                     DateTimes.currentDateAsString(),
-                    Utils.inverseTimestamp()));
+                    Systems.inverseTimestamp()));
 
             bs.add(psUpdateDt.bind(
                     new Date(),
@@ -120,7 +121,7 @@ public class CVertexRepository extends AbstractRepository implements VertexRepos
                     vertex.label(),
                     vertex.id()));
         }
-        return FutureAdapter.from(session.executeAsync(bs), rs -> entities);
+        return FutureHelper.transform(session.executeAsync(bs), rs -> entities);
     }
 
     private static String createSaltFrom(String input) {

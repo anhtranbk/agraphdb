@@ -1,16 +1,16 @@
 package com.agraph.v1.hbase;
 
-import com.agraph.config.Config;
-import com.google.common.base.Preconditions;
-import com.google.common.util.concurrent.ListenableFuture;
-import com.agraph.common.concurrent.FutureAdapter;
-import com.agraph.common.util.Iterables;
+import com.agraph.common.concurrent.FutureHelper;
+import com.agraph.common.util.Iterables2;
 import com.agraph.common.util.Strings;
-import com.agraph.common.util.Utils;
+import com.agraph.common.util.Systems;
+import com.agraph.config.Config;
 import com.agraph.v1.Direction;
 import com.agraph.v1.Edge;
 import com.agraph.v1.Vertex;
 import com.agraph.v1.repository.EdgeRepository;
+import com.google.common.base.Preconditions;
+import com.google.common.util.concurrent.ListenableFuture;
 import org.apache.hadoop.hbase.client.Delete;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.client.ResultScanner;
@@ -63,7 +63,7 @@ public class HEdgeRepository extends BaseRepository implements EdgeRepository {
                 throw new HBaseRuntimeException(e);
             }
         });
-        return FutureAdapter.from(fut, o -> Collections.singleton(entity));
+        return FutureHelper.transform(fut, o -> Collections.singleton(entity));
     }
 
     @Override
@@ -90,12 +90,12 @@ public class HEdgeRepository extends BaseRepository implements EdgeRepository {
                 throw new HBaseRuntimeException(e);
             }
         });
-        return FutureAdapter.from(fut, o -> entities);
+        return FutureHelper.transform(fut, o -> entities);
     }
 
     @Override
     public Iterable<Edge> findByVertex(Vertex src, Direction direction, String label) {
-        Preconditions.checkArgument(label == null || Utils.notEquals(direction, Direction.BOTH),
+        Preconditions.checkArgument(label == null || Systems.notEquals(direction, Direction.BOTH),
                 "Can only query bi-direction edge if label null");
 
         try (Table table = connection.getTable(getTableName(Constants.TB_EDGE))) {
@@ -114,7 +114,7 @@ public class HEdgeRepository extends BaseRepository implements EdgeRepository {
             scan.setRowPrefixFilter(rowPrefix);
             ResultScanner scanner = table.getScanner(scan);
 
-            return Iterables.transform(scanner, result -> {
+            return Iterables2.transform(scanner, result -> {
                 EdgeKey key = EdgeKey.from(result.getRow());
                 Direction d = key.direction;
                 String elb = key.edgeLabel;

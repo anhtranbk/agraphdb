@@ -1,6 +1,6 @@
 package com.agraph.common.lifecycle;
 
-import com.agraph.common.util.Utils;
+import com.agraph.common.util.Systems;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -11,6 +11,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  *
  * @author <a href="https://github.com/tjeubaoit">tjeubaoit</a>
  */
+@SuppressWarnings("UnusedReturnValue")
 public abstract class AbstractLifeCycle implements LifeCycle {
 
     protected final Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -19,7 +20,7 @@ public abstract class AbstractLifeCycle implements LifeCycle {
     private final AtomicBoolean flagStop = new AtomicBoolean(false);
 
     public AbstractLifeCycle() {
-        Utils.addShutdownHook(this::stop);
+        Systems.addShutdownHook(this::stop);
     }
 
     protected void onInitialize() {

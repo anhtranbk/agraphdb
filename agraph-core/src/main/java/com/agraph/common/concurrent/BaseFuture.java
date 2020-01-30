@@ -6,7 +6,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
 
-public abstract class AbstractListenableFuture<T> implements ListenableFuture<T> {
+public abstract class BaseFuture<T> implements ListenableFuture<T> {
 
     @Override
     public void addListener(@NotNull Runnable runnable, @NotNull Executor executor) {

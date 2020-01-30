@@ -1,13 +1,13 @@
 package com.agraph.v1;
 
-import com.google.common.base.Preconditions;
-import com.google.common.util.concurrent.ListenableFuture;
-import com.agraph.common.concurrent.FutureAdapter;
-import com.agraph.common.util.Iterables;
-import com.agraph.common.util.Utils;
+import com.agraph.common.concurrent.FutureHelper;
+import com.agraph.common.util.Iterables2;
+import com.agraph.common.util.Systems;
 import com.agraph.v1.repository.EdgeRepository;
 import com.agraph.v1.repository.RepositoryFactory;
 import com.agraph.v1.repository.VertexRepository;
+import com.google.common.base.Preconditions;
+import com.google.common.util.concurrent.ListenableFuture;
 import io.reactivex.Observable;
 
 import java.util.ArrayList;
@@ -80,7 +80,7 @@ public class DefaultSession implements GraphSession {
     }
 
     private Iterable<Edge> findEdges(Vertex vertex, Direction direction, String... edgeLabels) {
-        Preconditions.checkArgument(Utils.notEquals(direction, Direction.BOTH));
+        Preconditions.checkArgument(Systems.notEquals(direction, Direction.BOTH));
 
         if (edgeLabels.length == 0) {
             return edgeRepository.findByVertex(vertex, direction, null);
@@ -97,13 +97,13 @@ public class DefaultSession implements GraphSession {
 
     @Override
     public ListenableFuture<EdgeSet> addEdges(long ts, Collection<Edge> edges) {
-        return FutureAdapter.from(edgeRepository.saveAll(edges), EdgeSet::convert);
+        return FutureHelper.transform(edgeRepository.saveAll(edges), EdgeSet::convert);
     }
 
     @Override
     public ListenableFuture<EdgeSet> removeEdge(long ts, String label, Vertex outVertex, Vertex inVertex) {
         Edge edge = Edge.create(label, outVertex, inVertex);
-        return FutureAdapter.from(edgeRepository.delete(edge), EdgeSet::convert);
+        return FutureHelper.transform(edgeRepository.delete(edge), EdgeSet::convert);
     }
 
     @Override
@@ -125,7 +125,7 @@ public class DefaultSession implements GraphSession {
 
     @Override
     public VertexSet vertices(Vertex vertex, Direction direction, String... edgeLabels) {
-        return VertexSet.convert(Iterables.transform(
+        return VertexSet.convert(Iterables2.transform(
                 edges(vertex, direction, edgeLabels),
                 edge -> edge.outVertex().equals(vertex) ? edge.inVertex() : edge.outVertex()));
     }
@@ -133,19 +133,19 @@ public class DefaultSession implements GraphSession {
     @Override
     public VertexSet verticesByAdjVertexLabels(Vertex vertex, Direction direction,
                                                String... adjVertexLabels) {
-        return VertexSet.convert(Iterables.transform(
+        return VertexSet.convert(Iterables2.transform(
                 edgesByAdjVertexLabels(vertex, direction, adjVertexLabels),
                 edge -> edge.outVertex().equals(vertex) ? edge.inVertex() : edge.outVertex()));
     }
 
     @Override
     public ListenableFuture<VertexSet> addVertices(long ts, Collection<Vertex> vertices) {
-        return FutureAdapter.from(vertexRepository.saveAll(vertices), VertexSet::convert);
+        return FutureHelper.transform(vertexRepository.saveAll(vertices), VertexSet::convert);
     }
 
     @Override
     public ListenableFuture<VertexSet> deleteVertex(long ts, String id, String label) {
-        return FutureAdapter.from(vertexRepository.delete(Vertex.create(id, label)), VertexSet::convert);
+        return FutureHelper.transform(vertexRepository.delete(Vertex.create(id, label)), VertexSet::convert);
     }
 
     @Override

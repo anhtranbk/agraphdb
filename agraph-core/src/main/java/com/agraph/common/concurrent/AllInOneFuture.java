@@ -1,18 +1,11 @@
 package com.agraph.common.concurrent;
 
-import com.google.common.util.concurrent.FutureCallback;
-import com.google.common.util.concurrent.Futures;
-import com.google.common.util.concurrent.ListenableFuture;
-import org.apache.tinkerpop.gremlin.structure.T;
-import org.checkerframework.checker.nullness.qual.Nullable;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Executor;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -20,7 +13,7 @@ import java.util.concurrent.TimeoutException;
 /**
  * @author <a href="https://github.com/tjeubaoit">tjeubaoit</a>
  */
-public class AllInOneFuture<T> extends AbstractListenableFuture<List<T>> {
+public class AllInOneFuture<T> extends BaseFuture<List<T>> {
 
     private final List<Future<T>> futures = new LinkedList<>();
 
