@@ -88,7 +88,7 @@ public class VertexId extends ElementId {
             String[] parts = id.split(VERTEX_SEPARATOR);
             byte[] val = Base64s.decode(parts[1], false);
             Tuple2<DataType, Object> tuple2 = Types.decode(val);
-            return new VertexId(tuple2._1(), tuple2._2(), parts[0]);
+            return new VertexId(tuple2._1, tuple2._2, parts[0]);
         } catch (Exception e) {
             throw new SerializationException(Strings.format("Could not parse vertex Id: %s", id), e);
         }

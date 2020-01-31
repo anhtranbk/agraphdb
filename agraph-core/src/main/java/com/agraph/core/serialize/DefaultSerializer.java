@@ -12,6 +12,6 @@ public class DefaultSerializer implements Serializer {
 
     @Override
     public Object read(byte[] serialized) {
-        return Types.decode(serialized)._2();
+        return Types.decode(serialized)._2;
     }
 }
