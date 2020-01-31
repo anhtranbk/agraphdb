@@ -39,16 +39,15 @@ public class Strings {
     public static String join(Iterator<?> iterator, String separator, String prefix, String suffix) {
         if (!iterator.hasNext()) return "";
 
-        StringBuilder sb = new StringBuilder();
+        StringBuilder sb = new StringBuilder(prefix);
         while (iterator.hasNext()) {
             sb.append(iterator.next());
             if (iterator.hasNext()) {
                 sb.append(separator);
             }
         }
-
-        String s = sb.toString();
-        return s.isEmpty() ? s : prefix + sb.toString() + suffix;
+        sb.append(suffix);
+        return sb.toString();
     }
 
     public static boolean isNonEmpty(CharSequence source) {
@@ -101,7 +100,7 @@ public class Strings {
 
     public static String lastCharacters(String source, int numChars) {
         try {
-            return source.substring(source.length() - numChars, source.length());
+            return source.substring(source.length() - numChars);
         } catch (IndexOutOfBoundsException e) {
             return source;
         }

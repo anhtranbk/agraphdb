@@ -28,7 +28,7 @@ public class MultiCondition implements Condition {
     @Override
     public String asString() {
         final String sep = " " + operator.symbol + " ";
-        return "(" + Strings.join(conditions, sep) + ")";
+        return Strings.join(conditions, sep, "(", ")");
     }
 
     @Override
