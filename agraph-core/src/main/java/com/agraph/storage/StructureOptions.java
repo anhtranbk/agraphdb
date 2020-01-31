@@ -9,20 +9,20 @@ import lombok.experimental.Accessors;
 @Accessors(chain = true)
 public @Data class StructureOptions implements Configurable {
 
-    @ConfigDescriptor(value = "agraph.structure.element.maxIdLen",
-            defaultValue = "33", minValue = 1, maxValue = 255)
+    @ConfigDescriptor(name = "agraph.structure.element.maxIdLen",
+            defaultValue = "32", minValue = 1, maxValue = 255)
     private int maxIdLength;
 
-    @ConfigDescriptor(value = "agraph.structure.element.maxLabelLen",
+    @ConfigDescriptor(name = "agraph.structure.element.maxLabelLen",
             defaultValue = "32", minValue = 1, maxValue = 255)
     private int maxLabelLength;
 
-    @ConfigDescriptor(value = "agraph.structure.property.maxNameLen",
+    @ConfigDescriptor(name = "agraph.structure.property.maxNameLen",
             defaultValue = "32", minValue = 1, maxValue = 255)
     private int maxPropertyNameLength;
 
-    @ConfigDescriptor(value = "agraph.structure.property.maxValueLen",
-            defaultValue = "65535", minValue = 1, maxValue = 65535)
+    @ConfigDescriptor(name = "agraph.structure.property.maxValueLen",
+            defaultValue = "2047", minValue = 1, maxValue = 32767)
     private int maxPropertyValueLength;
 
     public StructureOptions(Config conf) {

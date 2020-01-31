@@ -1,16 +1,18 @@
-package com.agraph.platform;
+package com.agraph.storage.backend;
 
+import com.google.common.base.Preconditions;
+import lombok.AccessLevel;
 import lombok.Data;
+import lombok.Getter;
 import lombok.experimental.Accessors;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
 /**
  * @author <a href="https://github.com/tjeubaoit">tjeubaoit</a>
  */
-@Accessors(chain = true)
+@Accessors(chain = true, fluent = true)
 public @Data class ConnectionUri {
 
     private String scheme;
@@ -19,13 +21,27 @@ public @Data class ConnectionUri {
     private String username;
     private String password;
     private String database;
-    private Map<String, String> parameters = Collections.emptyMap();
+    @Getter(AccessLevel.MODULE)
+    private Map<String, String> parameters = new HashMap<>();
 
     @Override
     public String toString() {
+        return this.asString(false);
+    }
+
+    public ConnectionUri addParameters(String... params) {
+        Preconditions.checkArgument(params.length % 2 == 0,
+                "Invalid number parameters, must be an even number");
+        for (int i = 0; i < params.length; i += 2) {
+            this.parameters.put(params[i], params[i+1]);
+        }
+        return this;
+    }
+
+    public String asString(boolean withCredentials) {
         StringBuilder sb = new StringBuilder();
         sb.append(scheme).append("://");
-        if (username != null && password != null) {
+        if (username != null && password != null && withCredentials) {
             sb.append(username).append(":").append(password).append("@");
         }
         sb.append(host);
@@ -49,14 +65,14 @@ public @Data class ConnectionUri {
             ConnectionUri uri = new ConnectionUri();
 
             String[] p1 = connectionString.split("://");
-            uri.setScheme(p1[0]);
+            uri.scheme(p1[0]);
             String[] p2 = p1[1].split("@");
 
             String tmp;
             if (p2.length > 1) {
                 String[] p3 = p2[0].split(":");
-                uri.setUsername(p3[0]);
-                uri.setPassword(p3[1]);
+                uri.username(p3[0]);
+                uri.password(p3[1]);
                 tmp = p2[1];
             } else {
                 tmp = p2[0];
@@ -65,12 +81,12 @@ public @Data class ConnectionUri {
             String[] p4 = tmp.split("/");
             String[] p5 = p4[0].split(":");
             if (p5.length > 1) {
-                uri.setPort(Integer.parseInt(p5[1]));
+                uri.port(Integer.parseInt(p5[1]));
             }
-            uri.setHost(p5[0]);
+            uri.host(p5[0]);
 
             String[] p6 = p4[1].split("\\?");
-            uri.setDatabase(p6[0]);
+            uri.database(p6[0]);
 
             String[] p7 = p6[1].split("&");
             Map<String, String> m = new HashMap<>(p7.length);
@@ -78,7 +94,7 @@ public @Data class ConnectionUri {
                 String[] p8 = q.split("=");
                 m.put(p8[0], p8[1]);
             }
-            uri.setParameters(m);
+            uri.parameters(m);
 
             return uri;
         } catch (Exception e) {

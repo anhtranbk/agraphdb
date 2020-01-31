@@ -1,4 +1,4 @@
-package com.agraph.storage.rdbms.mlae;
+package com.agraph.storage.mlae;
 
 public interface Constants {
 
@@ -13,10 +13,10 @@ public interface Constants {
     String LABEL_COL = "lb";
     String KEY_COL = "k";
     String VALUE_COL = "v";
-    String VERTEX_SRC_ID_COL = "i";
-    String VERTEX_DST_ID_COL = "o";
-    String VERTEX_SRC_LABEL_COL = "il";
-    String VERTEX_DST_LABEL_COL = "ol";
+    String VERTEX_SRC_ID_COL = "oid";
+    String VERTEX_DST_ID_COL = "iid";
+    String VERTEX_SRC_LABEL_COL = "ol";
+    String VERTEX_DST_LABEL_COL = "il";
 
     String HIDDEN_ID_PROPERTY = "_id";
 }

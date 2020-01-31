@@ -11,7 +11,7 @@ import java.lang.annotation.Target;
 @Target(ElementType.FIELD)
 public @interface ConfigDescriptor {
 
-    String value();
+    String name();
 
     String defaultValue() default "";
 

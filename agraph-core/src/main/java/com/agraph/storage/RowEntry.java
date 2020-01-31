@@ -2,6 +2,7 @@ package com.agraph.storage;
 
 import com.agraph.common.tuple.Tuple2;
 import com.agraph.storage.rdbms.schema.Argument;
+import com.google.common.collect.Iterables;
 import lombok.Getter;
 import lombok.experimental.Accessors;
 
@@ -19,6 +20,17 @@ public class RowEntry {
                     List<Tuple2<String, Argument>> values) {
         this.keys = keys;
         this.values = values;
+    }
+
+    public Iterable<Tuple2<String, Argument>> allKeysAndValues() {
+        return Iterables.concat(keys, values);
+    }
+
+    /**
+     * @return Number of both key and value fields
+     */
+    public int size() {
+        return this.keys.size() + this.values.size();
     }
 
     public static Builder builder() {

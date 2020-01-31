@@ -1,5 +1,6 @@
 package com.agraph.storage.rdbms.schema;
 
+import com.google.common.collect.Iterables;
 import lombok.Getter;
 import lombok.experimental.Accessors;
 
@@ -17,6 +18,10 @@ public class TableDefine {
         this.name = name;
         this.keyColumns = keyColumns;
         this.nonKeyColumns = nonKeyColumns;
+    }
+
+    public Iterable<Column> allColumns() {
+        return Iterables.concat(this.keyColumns, this.nonKeyColumns);
     }
 
     public TableDefine addPartitionColumns(Column... columns) {

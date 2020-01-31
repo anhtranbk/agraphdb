@@ -1,6 +1,7 @@
 package com.agraph;
 
 import com.agraph.config.Config;
+import com.agraph.core.idpool.IdPool;
 import com.agraph.core.serialize.Serializer;
 import com.agraph.core.tx.TransactionBuilder;
 import org.apache.tinkerpop.gremlin.process.computer.GraphComputer;
@@ -8,6 +9,7 @@ import org.apache.tinkerpop.gremlin.structure.Graph;
 import org.apache.tinkerpop.gremlin.structure.T;
 
 import java.io.Closeable;
+import java.util.concurrent.ExecutorService;
 
 public interface AGraph extends Graph, Closeable {
 
@@ -20,6 +22,10 @@ public interface AGraph extends Graph, Closeable {
     AGraphTransaction newTransaction();
 
     TransactionBuilder transactionBuilder();
+
+    IdPool idPool();
+
+    ExecutorService ioThreadPool();
 
     boolean isOpen();
 

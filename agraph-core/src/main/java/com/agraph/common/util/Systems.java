@@ -66,4 +66,12 @@ public class Systems {
             return "Unknown";
         }
     }
+
+    public static int[] newIntArray(int from, int to) {
+        int[] arr = new int[to - from];
+        for (int i = 0; i < arr.length; i++) {
+            arr[i] = to + i;
+        }
+        return arr;
+    }
 }

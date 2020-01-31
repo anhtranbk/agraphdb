@@ -53,7 +53,7 @@ public class Mutations implements MutationBuilder {
 
     @Override
     public Collection<Mutation> fromRemovedVertices(Iterable<InternalVertex> vertices) {
-        Iterable<RowEntry> entries = StreamSupports.stream(vertices)
+        Collection<RowEntry> entries = StreamSupports.stream(vertices)
                 .filter(Objects::nonNull)
                 .map(vertex -> toEntryBuilder(vertex).build())
                 .collect(Collectors.toList());
@@ -90,7 +90,7 @@ public class Mutations implements MutationBuilder {
             updateProps.add(hiddenProp);
         }
 
-        Iterable<RowEntry> modifiedEntries = updateProps.stream()
+        Collection<RowEntry> modifiedEntries = updateProps.stream()
                 .map(p -> this.toEntryBuilder(vertex)
                         .addKey(KEY_COL, Argument.of(p.key(), false))
                         .addValue(VALUE_COL, Argument.of(serializer.write(DataType.RAW, p.value())))
@@ -100,11 +100,11 @@ public class Mutations implements MutationBuilder {
 
         if (vertex.removedProps().isEmpty()) {
             return Collections.singletonList(
-                    new Mutation(VERTEX_TABLE, Mutation.Action.ADD_OR_UPDATE, modifiedEntries)
+                    new Mutation(VERTEX_TABLE, Mutation.Action.UPSERT, modifiedEntries)
             );
         }
 
-        Iterable<RowEntry> removedEntries = vertex.removedProps().stream()
+        Collection<RowEntry> removedEntries = vertex.removedProps().stream()
                 .map(p -> this.toEntryBuilder(vertex)
                         .addKey(KEY_COL, Argument.of(p.key(), false))
                         .addValue(VALUE_COL, Argument.of(serializer.write(DataType.RAW, p.value())))
@@ -113,7 +113,7 @@ public class Mutations implements MutationBuilder {
                 .collect(Collectors.toList());
 
         return Arrays.asList(
-                new Mutation(VERTEX_TABLE, Mutation.Action.ADD_OR_UPDATE, modifiedEntries),
+                new Mutation(VERTEX_TABLE, Mutation.Action.UPSERT, modifiedEntries),
                 new Mutation(VERTEX_TABLE, Mutation.Action.REMOVE, removedEntries)
         );
     }
@@ -123,7 +123,7 @@ public class Mutations implements MutationBuilder {
                 ? edge.asPropertiesMap().values()
                 : edge.modifiedProps();
 
-        Iterable<RowEntry> modifiedEntries = updateProps.stream()
+        Collection<RowEntry> modifiedEntries = updateProps.stream()
                 .map(p -> RowEntry.builder()
                         .addKey(REF_ID_COL, Argument.of(edge.internalId()))
                         .addKey(KEY_COL, Argument.of(p.key(), false))
@@ -138,18 +138,18 @@ public class Mutations implements MutationBuilder {
                     .build();
 
             return Arrays.asList(
-                    new Mutation(EDGE_PROPS_TABLE, Mutation.Action.ADD_OR_UPDATE, modifiedEntries),
-                    new Mutation(EDGE_TABLE, Mutation.Action.ADD_OR_UPDATE, addEntry)
+                    new Mutation(EDGE_PROPS_TABLE, Mutation.Action.UPSERT, modifiedEntries),
+                    new Mutation(EDGE_TABLE, Mutation.Action.UPSERT, addEntry)
             );
         }
 
         if (edge.removedProps().isEmpty()) {
             return Collections.singletonList(
-                    new Mutation(EDGE_PROPS_TABLE, Mutation.Action.ADD_OR_UPDATE, modifiedEntries)
+                    new Mutation(EDGE_PROPS_TABLE, Mutation.Action.UPSERT, modifiedEntries)
             );
         }
 
-        Iterable<RowEntry> removedEntries = edge.removedProps().stream()
+        Collection<RowEntry> removedEntries = edge.removedProps().stream()
                 .map(p -> RowEntry.builder()
                         .addKey(REF_ID_COL, Argument.of(edge.internalId()))
                         .addKey(KEY_COL, Argument.of(p.key(), false))
@@ -159,7 +159,7 @@ public class Mutations implements MutationBuilder {
                 .collect(Collectors.toList());
 
         return Arrays.asList(
-                new Mutation(EDGE_PROPS_TABLE, Mutation.Action.ADD_OR_UPDATE, modifiedEntries),
+                new Mutation(EDGE_PROPS_TABLE, Mutation.Action.UPSERT, modifiedEntries),
                 new Mutation(EDGE_PROPS_TABLE, Mutation.Action.REMOVE, removedEntries)
         );
     }

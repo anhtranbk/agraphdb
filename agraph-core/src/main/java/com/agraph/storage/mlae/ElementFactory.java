@@ -1,4 +1,4 @@
-package com.agraph.storage.rdbms.mlae;
+package com.agraph.storage.mlae;
 
 import com.agraph.core.InternalEdge;
 import com.agraph.core.InternalVertex;

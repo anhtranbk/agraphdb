@@ -12,13 +12,13 @@ import java.util.Iterator;
 
 public interface StorageEngine extends GraphComponent, AutoCloseable {
 
-    void open(Config conf);
+    void open(Config conf); // open connect to backend db
 
-    boolean isOpened();
+    boolean opened();
 
-    void initialize();
+    void initialize(); // init db and table for graph
 
-    boolean isInitialized();
+    boolean initialized();
 
     StorageBackend backend();
 

@@ -1,18 +1,20 @@
-package com.agraph.storage.rdbms.mlae;
+package com.agraph.storage.mlae;
 
 import com.agraph.AGraph;
 import com.agraph.config.Config;
+import com.agraph.core.DefaultAGraph;
 import com.agraph.core.InternalEdge;
 import com.agraph.core.InternalVertex;
 import com.agraph.core.type.EdgeId;
 import com.agraph.core.type.VertexId;
 import com.agraph.storage.Mutation;
 import com.agraph.storage.MutationBuilder;
+import com.agraph.storage.StorageBackend;
+import com.agraph.storage.StorageEngine;
 import com.agraph.storage.StorageException;
 import com.agraph.storage.StorageFeatures;
 import com.agraph.storage.StructureOptions;
-import com.agraph.storage.rdbms.RdbmsStorageBackend;
-import com.agraph.storage.rdbms.RdbmsStorageEngine;
+import com.agraph.storage.backend.BackendSession;
 import com.agraph.storage.rdbms.query.Condition;
 import com.agraph.storage.rdbms.query.Conditions;
 import com.agraph.storage.rdbms.query.Query;
@@ -28,44 +30,54 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
-import static com.agraph.storage.rdbms.mlae.Constants.EDGE_PROPS_TABLE;
-import static com.agraph.storage.rdbms.mlae.Constants.EDGE_TABLE;
-import static com.agraph.storage.rdbms.mlae.Constants.ID_COL;
-import static com.agraph.storage.rdbms.mlae.Constants.KEY_COL;
-import static com.agraph.storage.rdbms.mlae.Constants.LABEL_COL;
-import static com.agraph.storage.rdbms.mlae.Constants.REF_ID_COL;
-import static com.agraph.storage.rdbms.mlae.Constants.SYSTEM_TABLE;
-import static com.agraph.storage.rdbms.mlae.Constants.VALUE_COL;
-import static com.agraph.storage.rdbms.mlae.Constants.VERTEX_DST_ID_COL;
-import static com.agraph.storage.rdbms.mlae.Constants.VERTEX_DST_LABEL_COL;
-import static com.agraph.storage.rdbms.mlae.Constants.VERTEX_LARGE_PROPS_TABLE;
-import static com.agraph.storage.rdbms.mlae.Constants.VERTEX_SRC_ID_COL;
-import static com.agraph.storage.rdbms.mlae.Constants.VERTEX_SRC_LABEL_COL;
-import static com.agraph.storage.rdbms.mlae.Constants.VERTEX_TABLE;
+import static com.agraph.storage.mlae.Constants.EDGE_PROPS_TABLE;
+import static com.agraph.storage.mlae.Constants.EDGE_TABLE;
+import static com.agraph.storage.mlae.Constants.ID_COL;
+import static com.agraph.storage.mlae.Constants.KEY_COL;
+import static com.agraph.storage.mlae.Constants.LABEL_COL;
+import static com.agraph.storage.mlae.Constants.REF_ID_COL;
+import static com.agraph.storage.mlae.Constants.SYSTEM_TABLE;
+import static com.agraph.storage.mlae.Constants.VALUE_COL;
+import static com.agraph.storage.mlae.Constants.VERTEX_DST_ID_COL;
+import static com.agraph.storage.mlae.Constants.VERTEX_DST_LABEL_COL;
+import static com.agraph.storage.mlae.Constants.VERTEX_LARGE_PROPS_TABLE;
+import static com.agraph.storage.mlae.Constants.VERTEX_SRC_ID_COL;
+import static com.agraph.storage.mlae.Constants.VERTEX_SRC_LABEL_COL;
+import static com.agraph.storage.mlae.Constants.VERTEX_TABLE;
 
-public class VuDaiStorageEngine extends RdbmsStorageEngine {
+public class VuDaiStorageEngine implements StorageEngine {
 
     private static final Logger logger = LoggerFactory.getLogger(VuDaiStorageEngine.class);
 
-    private final Config conf;
+    private final StorageBackend backend;
+    private final AGraph graph;
+
     private final StorageFeatures features;
     private final StructureOptions structureOps;
     private final MutationBuilder muttBuilder;
-
-    private final Map<String, TableDefine> tableDefines = new HashMap<>();
     private final List<Mutation> mutations = new ArrayList<>();
 
-    public VuDaiStorageEngine(AGraph graph, RdbmsStorageBackend backend) {
-        super(graph, backend);
-        this.conf = graph.config();
-        this.structureOps = new StructureOptions(conf);
+    private boolean initialized;
+
+    public VuDaiStorageEngine(DefaultAGraph graph, StorageBackend backend) {
+        this.graph = graph;
+        this.backend = backend;
+        this.structureOps = new StructureOptions(graph.config());
         this.features = backend.features();
         this.muttBuilder = new Mutations(graph);
+    }
+
+    @Override
+    public AGraph graph() {
+        return graph;
+    }
+
+    @Override
+    public StorageBackend backend() {
+        return backend;
     }
 
     @Override
@@ -73,42 +85,51 @@ public class VuDaiStorageEngine extends RdbmsStorageEngine {
     }
 
     @Override
-    public boolean isOpened() {
+    public boolean opened() {
         return false;
     }
 
     @Override
     public void initialize() {
-        if (!Futures.getUnchecked(backend.isTableExists(VERTEX_TABLE))) {
-            logger.info("VERTEX_TABLE is not exist. Creating new");
+        if (initialized) {
+            logger.warn("Storage has already been initialized");
+            return;
+        }
+
+        if (!Futures.getUnchecked(backend.session().isTableExists(VERTEX_TABLE))) {
+            logger.info("VERTEX_TABLE is not exist");
             initVertexTable();
             logger.info("Create VERTEX_TABLE successfully");
         }
-        if (!Futures.getUnchecked(backend.isTableExists(VERTEX_LARGE_PROPS_TABLE))) {
-            logger.info("VERTEX_LARGE_PROPS_TABLE is not exist. Creating new");
+
+        if (!Futures.getUnchecked(backend.session().isTableExists(VERTEX_LARGE_PROPS_TABLE))) {
+            logger.info("VERTEX_LARGE_PROPS_TABLE is not exist");
             initVertexLargePropsTable();
             logger.info("Create VERTEX_LARGE_PROPS_TABLE successfully");
         }
-        if (!Futures.getUnchecked(backend.isTableExists(EDGE_TABLE))) {
-            logger.info("EDGE_TABLE is not exist. Creating new");
+
+        if (!Futures.getUnchecked(backend.session().isTableExists(EDGE_TABLE))) {
+            logger.info("EDGE_TABLE is not exist");
             initEdgeTable();
             logger.info("Create EDGE_TABLE successfully");
         }
-        if (!Futures.getUnchecked(backend.isTableExists(EDGE_PROPS_TABLE))) {
-            logger.info("EDGE_PROPERTIES_TABLE is not exist. Creating new");
+
+        if (!Futures.getUnchecked(backend.session().isTableExists(EDGE_PROPS_TABLE))) {
+            logger.info("EDGE_PROPERTIES_TABLE is not exist");
             initEdgePropsTable();
             logger.info("Create EDGE_PROPERTIES_TABLE successfully");
         }
-        if (!Futures.getUnchecked(backend.isTableExists(SYSTEM_TABLE))) {
-            logger.info("SYSTEM_TABLE is not exist. Creating vertex new");
+
+        if (!Futures.getUnchecked(backend.session().isTableExists(SYSTEM_TABLE))) {
+            logger.info("SYSTEM_TABLE is not exist");
             initSystemTable();
             logger.info("Create SYSTEM_TABLE successfully");
         }
     }
 
     @Override
-    public boolean isInitialized() {
-        return false;
+    public boolean initialized() {
+        return this.initialized;
     }
 
     private void initVertexTable() {
@@ -130,10 +151,9 @@ public class VuDaiStorageEngine extends RdbmsStorageEngine {
 
         try {
             TableDefine td = TableDefine.create(VERTEX_TABLE, keys, cols);
-            tableDefines.put(VERTEX_TABLE, td);
-            backend.createTable(td).get();
-        } catch (Exception e) {
-            throw new StorageException(e);
+            backend.session().createTable(td).get();
+        } catch (Throwable t) {
+            throw new StorageException(t);
         }
     }
 
@@ -151,10 +171,9 @@ public class VuDaiStorageEngine extends RdbmsStorageEngine {
                         .build());
         try {
             TableDefine td = TableDefine.create(VERTEX_LARGE_PROPS_TABLE, keys, cols);
-            tableDefines.put(VERTEX_LARGE_PROPS_TABLE, td);
-            backend.createTable(td).get();
-        } catch (Exception e) {
-            throw new StorageException(e);
+            backend.session().createTable(td).get();
+        } catch (Throwable t) {
+            throw new StorageException(t);
         }
     }
 
@@ -188,10 +207,9 @@ public class VuDaiStorageEngine extends RdbmsStorageEngine {
 
         try {
             TableDefine td = TableDefine.create(EDGE_TABLE, keys, cols);
-            tableDefines.put(EDGE_TABLE, td);
-            backend.createTable(td).get();
-        } catch (Exception e) {
-            throw new StorageException(e);
+            backend.session().createTable(td).get();
+        } catch (Throwable t) {
+            throw new StorageException(t);
         }
     }
 
@@ -210,10 +228,9 @@ public class VuDaiStorageEngine extends RdbmsStorageEngine {
                         .build());
         try {
             TableDefine td = TableDefine.create(EDGE_PROPS_TABLE, keys, cols);
-            tableDefines.put(EDGE_PROPS_TABLE, td);
-            backend.createTable(td).get();
-        } catch (Exception e) {
-            throw new StorageException(e);
+            backend.session().createTable(td).get();
+        } catch (Throwable t) {
+            throw new StorageException(t);
         }
     }
 
@@ -230,10 +247,9 @@ public class VuDaiStorageEngine extends RdbmsStorageEngine {
                         .build());
         try {
             TableDefine td = TableDefine.create(EDGE_PROPS_TABLE, keys, cols);
-            tableDefines.put(SYSTEM_TABLE, td);
-            backend.createTable(td).get();
-        } catch (Exception e) {
-            throw new StorageException(e);
+            backend.session().createTable(td).get();
+        } catch (Throwable t) {
+            throw new StorageException(t);
         }
     }
 
@@ -243,7 +259,7 @@ public class VuDaiStorageEngine extends RdbmsStorageEngine {
                 .addColumns()
                 .condition(Conditions.in(LABEL_COL, Arrays.asList(labels)))
                 .build();
-        return Iterators.transform(backend.query(query), ElementFactory::createVertex);
+        return Iterators.transform(backend.session().query(query), ElementFactory::createVertex);
     }
 
     @Override
@@ -255,12 +271,12 @@ public class VuDaiStorageEngine extends RdbmsStorageEngine {
                         Conditions.in(LABEL_COL, Arrays.asList(labels))
                 ))
                 .build();
-        return Iterators.transform(backend.query(query), ElementFactory::createVertex);
+        return Iterators.transform(backend.session().query(query), ElementFactory::createVertex);
     }
 
     @Override
     public Iterator<InternalEdge> edges(Iterable<EdgeId> edgeIds) {
-        return null;
+        throw new UnsupportedOperationException();
     }
 
     @Override
@@ -283,7 +299,7 @@ public class VuDaiStorageEngine extends RdbmsStorageEngine {
                 .addColumns()
                 .condition(condition)
                 .build();
-        return Iterators.transform(backend.query(query), ElementFactory::createEdge);
+        return Iterators.transform(backend.session().query(query), ElementFactory::createEdge);
     }
 
     @Override
@@ -313,7 +329,7 @@ public class VuDaiStorageEngine extends RdbmsStorageEngine {
                 .addColumns()
                 .condition(finalCondition)
                 .build();
-        return Iterators.transform(backend.query(query), ElementFactory::createEdge);
+        return Iterators.transform(backend.session().query(query), ElementFactory::createEdge);
     }
 
     @Override
@@ -344,15 +360,19 @@ public class VuDaiStorageEngine extends RdbmsStorageEngine {
     @Override
     public void commitBackendTx() {
         try {
-            logger.info("Start writing mutations into backend with size: {}", mutations.size());
-            this.backend.mutate(this.mutations).get();
-            logger.info("Write mutations succeeded");
+            logger.debug("Start writing mutations into backend with size: {}", mutations.size());
+            this.backend.session().mutate(this.mutations).get();
+            logger.debug("Write mutations succeeded");
 
-            logger.info("Committing to backend database...");
-            this.backend.backendTx().commit();
-            logger.info("Commit to backend database succeeded");
-        } catch (Exception e1) {
-            logger.warn("Could not commit to backend database: " + e1.getMessage());
+            logger.debug("Committing to backend database...");
+            BackendSession session = this.backend.session();
+            session.tx().beforeCommit(this.mutations);
+            session.tx().commit();
+
+            logger.info("Commit to backend database succeeded with size: {}", mutations.size());
+            session.tx().afterCommit();
+        } catch (Throwable t) {
+            logger.warn("Could not commit to backend database: " + t.getMessage());
             this.rollbackBackendTx();
         } finally {
             reset();
@@ -362,13 +382,19 @@ public class VuDaiStorageEngine extends RdbmsStorageEngine {
     @Override
     public void rollbackBackendTx() {
         try {
-            logger.info("Rolling back...");
-            this.backend.backendTx().rollback();
-        } catch (Exception e) {
-            throw new StorageException(e);
+            logger.debug("Rolling back backend Tx...");
+            BackendSession session = this.backend.session();
+            session.tx().beforeRollback(this.mutations);
+            session.tx().rollback();
+            session.tx().afterRollback();
         } finally {
             reset();
         }
+    }
+
+    @Override
+    public void close() {
+        backend.close();
     }
 
     public void reset() {

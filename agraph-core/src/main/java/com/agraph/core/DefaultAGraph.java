@@ -6,15 +6,14 @@ import com.agraph.AGraphTransaction;
 import com.agraph.AGraphVertex;
 import com.agraph.config.Config;
 import com.agraph.config.ConfigUtils;
+import com.agraph.core.idpool.IdPool;
 import com.agraph.core.idpool.SequenceIdPool;
 import com.agraph.core.serialize.DefaultSerializer;
 import com.agraph.core.serialize.Serializer;
 import com.agraph.core.tx.TransactionBuilder;
 import com.agraph.core.type.EdgeId;
 import com.agraph.core.type.VertexId;
-import com.agraph.core.idpool.IdPool;
 import com.google.common.collect.Iterators;
-import io.reactivex.Observable;
 import lombok.Getter;
 import lombok.experimental.Accessors;
 import org.apache.commons.configuration.Configuration;
@@ -24,19 +23,20 @@ import org.apache.tinkerpop.gremlin.structure.VertexProperty;
 import org.apache.tinkerpop.gremlin.structure.util.ElementHelper;
 import org.apache.tinkerpop.gremlin.structure.util.StringFactory;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.ForkJoinPool;
+import java.util.stream.Collectors;
 
 @Accessors(fluent = true)
 public class DefaultAGraph implements AGraph {
 
     private final Config conf;
-    @Getter
     private final AGraphOptions aGraphOps;
-    @Getter
-    private final TinkerOptions tinkerOps;
     @Getter
     private final Serializer serializer;
 
@@ -50,13 +50,12 @@ public class DefaultAGraph implements AGraph {
     public DefaultAGraph(Config aGraphConf) {
         this.conf = aGraphConf;
         this.aGraphOps = new AGraphOptions(this.conf);
-        this.tinkerOps = new TinkerOptions(this.conf);
         this.serializer = new DefaultSerializer();
     }
 
     @Override
     public String name() {
-        return this.tinkerOps.name();
+        return this.aGraphOps.name();
     }
 
     @Override
@@ -127,20 +126,20 @@ public class DefaultAGraph implements AGraph {
     @Override
     public Iterator<Vertex> vertices(Object... ids) {
         ElementHelper.validateMixedElementIds(AGraphVertex.class, ids);
-        Iterable<VertexId> vIds = Observable.fromArray(ids)
+        Iterable<VertexId> vIds = Arrays.stream(ids)
                 .map(DefaultAGraph::validateAndGetVertexId)
                 .filter(Objects::nonNull)
-                .blockingIterable();
+                .collect(Collectors.toList());
         return Iterators.transform(this.tx().vertices(vIds), v -> v);
     }
 
     @Override
     public Iterator<Edge> edges(Object... ids) {
         ElementHelper.validateMixedElementIds(AGraphEdge.class, ids);
-        Iterable<EdgeId> eIds = Observable.fromArray(ids)
+        Iterable<EdgeId> eIds = Arrays.stream(ids)
                 .map(DefaultAGraph::validateAndGetEdgeId)
                 .filter(Objects::nonNull)
-                .blockingIterable();
+                .collect(Collectors.toList());
         return Iterators.transform(this.tx().edges(eIds), e -> e);
     }
 
@@ -153,8 +152,14 @@ public class DefaultAGraph implements AGraph {
         throw new UnsupportedOperationException();
     }
 
+    @Override
     public IdPool idPool() {
         return new SequenceIdPool();
+    }
+
+    @Override
+    public ExecutorService ioThreadPool() {
+        return ForkJoinPool.commonPool();
     }
 
     private static VertexId validateAndGetVertexId(Object rawId) {

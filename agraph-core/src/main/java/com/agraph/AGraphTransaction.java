@@ -11,7 +11,7 @@ import java.util.Optional;
 
 public interface AGraphTransaction extends Transaction {
 
-    long id();
+    long txId();
 
     AGraph graph();
 

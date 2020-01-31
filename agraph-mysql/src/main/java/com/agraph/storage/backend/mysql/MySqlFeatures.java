@@ -1,8 +1,8 @@
-package com.agraph.storage.rdbms;
+package com.agraph.storage.backend.mysql;
 
 import com.agraph.storage.StorageFeatures;
 
-public class RdbmsStorageFeature implements StorageFeatures {
+public class MySqlFeatures implements StorageFeatures {
 
     @Override
     public boolean isPersistent() {
