@@ -1,6 +1,7 @@
 package com.agraph.core;
 
 import com.agraph.AGraphEdge;
+import com.agraph.AGraphTransaction;
 import com.agraph.State;
 import com.agraph.core.type.EdgeId;
 import com.google.common.base.Preconditions;
@@ -25,17 +26,17 @@ public class InternalEdge extends AbstractElement implements AGraphEdge {
     private final InternalVertex inVertex, outVertex;
     private long internalId;
 
-    public InternalEdge(DefaultAGraph graph, EdgeId id, String label, State state,
+    public InternalEdge(AGraphTransaction tx, EdgeId id, String label, State state,
                         InternalVertex outVertex, InternalVertex inVertex,
                         Map<String, ? extends AGraphEdgeProperty<?>> props) {
-        super(graph, id, label, state, props);
+        super(tx, id, label, state, props);
 
         Preconditions.checkNotNull(outVertex, "Outgoing vertex can't be null");
         Preconditions.checkNotNull(inVertex, "Incoming vertex can't be null");
 
         this.inVertex = inVertex;
         this.outVertex = outVertex;
-        this.internalId = graph.idPool().generate();
+        this.internalId = tx.graph().idPool().generate();
     }
 
     @Override

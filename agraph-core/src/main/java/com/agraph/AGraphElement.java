@@ -1,32 +1,23 @@
 package com.agraph;
 
 import com.agraph.core.AGraphProperty;
-import com.agraph.core.AbstractElement;
 import com.agraph.core.type.ElementId;
 import org.apache.tinkerpop.gremlin.structure.Element;
 import org.apache.tinkerpop.gremlin.structure.Property;
 
 import java.util.Map;
 
-public interface AGraphElement extends Element, Statifiable, Cloneable {
+public interface AGraphElement extends Element, Cloneable {
 
-    AGraph graph();
+    default AGraph graph() {
+        return this.tx().graph();
+    }
+
+    AGraphTransaction tx();
 
     ElementId id();
 
     String label();
-
-    default AGraphTransaction tx() {
-        return graph().tx();
-    }
-
-    default boolean isVertex() {
-        return id().isVertex();
-    }
-
-    default boolean isEdge() {
-        return id().isEdge();
-    }
 
     Map<String, AGraphProperty<?>> asPropertiesMap();
 
@@ -39,10 +30,4 @@ public interface AGraphElement extends Element, Statifiable, Cloneable {
      * @return property value of null if property does not exist
      */
     <V> V valueOrNull(String key);
-
-    void resetProperties();
-
-    void copyProperties(AbstractElement element);
-
-    AGraphElement copy();
 }

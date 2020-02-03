@@ -24,7 +24,7 @@ public interface InternalElement extends AGraphElement, Statifiable {
 
     void resetProperties();
 
-    void copyProperties(AbstractElement element);
+    void copyProperties(InternalElement element);
 
     AGraphElement copy();
 }

@@ -3,7 +3,6 @@ package com.agraph;
 import com.agraph.config.Config;
 import com.agraph.core.idpool.IdPool;
 import com.agraph.core.serialize.Serializer;
-import com.agraph.core.tx.TransactionBuilder;
 import com.agraph.storage.StorageBackend;
 import org.apache.tinkerpop.gremlin.process.computer.GraphComputer;
 import org.apache.tinkerpop.gremlin.structure.Graph;
@@ -23,8 +22,6 @@ public interface AGraph extends Graph, Closeable {
     Serializer serializer();
 
     AGraphTransaction newTransaction();
-
-    TransactionBuilder transactionBuilder();
 
     IdPool idPool();
 

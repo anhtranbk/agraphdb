@@ -1,6 +1,7 @@
 package com.agraph.core;
 
 import com.agraph.AGraphEdge;
+import com.agraph.AGraphTransaction;
 import com.agraph.AGraphVertex;
 import com.agraph.State;
 import com.agraph.core.type.VertexId;
@@ -24,9 +25,9 @@ import java.util.stream.Collectors;
  */
 public class InternalVertex extends AbstractElement implements AGraphVertex {
 
-    public InternalVertex(DefaultAGraph graph, VertexId id, String label, State state,
+    public InternalVertex(AGraphTransaction tx, VertexId id, String label, State state,
                           Map<String, AGraphVertexProperty<?>> props) {
-        super(graph, id, label, state, props);
+        super(tx, id, label, state, props);
     }
 
     @Override
@@ -55,7 +56,7 @@ public class InternalVertex extends AbstractElement implements AGraphVertex {
                 "Could not add edge to a removed vertex: {}", vertex);
 
         InternalEdge edge = ElementBuilders.edgeBuilder()
-                .graph(this.graph())
+                .tx(this.tx())
                 .label(label)
                 .outVertex(this)
                 .inVertex(vertex)

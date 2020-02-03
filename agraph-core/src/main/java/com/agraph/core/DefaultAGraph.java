@@ -2,19 +2,19 @@ package com.agraph.core;
 
 import com.agraph.AGraph;
 import com.agraph.AGraphEdge;
+import com.agraph.AGraphException;
 import com.agraph.AGraphTransaction;
 import com.agraph.AGraphVertex;
+import com.agraph.common.util.Threads;
 import com.agraph.config.Config;
 import com.agraph.config.ConfigUtils;
 import com.agraph.core.idpool.IdPool;
 import com.agraph.core.idpool.SequenceIdPool;
 import com.agraph.core.serialize.Serializer;
-import com.agraph.core.tx.TransactionBuilder;
 import com.agraph.core.type.EdgeId;
 import com.agraph.core.type.VertexId;
 import com.agraph.storage.StorageBackend;
 import com.google.common.collect.Iterators;
-import lombok.experimental.Accessors;
 import org.apache.commons.configuration.Configuration;
 import org.apache.tinkerpop.gremlin.structure.Edge;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
@@ -31,9 +31,10 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ForkJoinPool;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
-@Accessors(fluent = true)
 public class DefaultAGraph implements AGraph {
 
     private static final Logger logger = LoggerFactory.getLogger(DefaultAGraph.class);
@@ -45,6 +46,10 @@ public class DefaultAGraph implements AGraph {
 
     private final ThreadLocal<AGraphTransaction> threadLocalTx = ThreadLocal.withInitial(() -> null);
     private final Map<Long, AGraphTransaction> txs = new HashMap<>();
+    private final AtomicBoolean closed = new AtomicBoolean();
+
+    private final ExecutorService ioThreadPool;
+    private final IdPool idPool;
 
     public DefaultAGraph(Configuration apacheConf) {
         this(ConfigUtils.fromApacheConfiguration(apacheConf));
@@ -57,9 +62,13 @@ public class DefaultAGraph implements AGraph {
         this.conf = conf;
         this.options = new AGraphOptions(this.conf);
         this.serializer = this.options.serializer();
+        this.ioThreadPool = ForkJoinPool.commonPool();
+        this.idPool = new SequenceIdPool();
 
         logger.info("Opening backend '{}' for graph '{}'", options.backend(), options.name());
         this.backend = this.options.backendFactory().open(this);
+
+        this.closed.set(false);
     }
 
     @Override
@@ -84,6 +93,30 @@ public class DefaultAGraph implements AGraph {
 
     @Override
     public void close() {
+        logger.info("Closing all active tx. There are {} current active txs", txs.size());
+        for (Map.Entry<Long, AGraphTransaction> entry : txs.entrySet()) {
+            AGraphTransaction tx = entry.getValue();
+            if (!tx.isOpen()) continue;
+            try {
+                logger.debug("Close tx {} associate with thread {}", tx.txId(), entry.getKey());
+                tx.close();
+            } catch (RuntimeException e) {
+                logger.error("Unable to close transaction {}", tx, e);
+            }
+        }
+
+        logger.info("Waiting all IO tasks completed...");
+        try {
+            Threads.stopThreadPool(this.ioThreadPool, 5, TimeUnit.MINUTES);
+        } catch (Throwable t) {
+            logger.error("Could not shutdown IO thread pool", t);
+        }
+
+        logger.info("Close and clean backend resources");
+        this.backend.close();
+
+        logger.info("Graph {} has been closed", this.options.name());
+        this.closed.set(true);
     }
 
     @Override
@@ -112,18 +145,13 @@ public class DefaultAGraph implements AGraph {
     }
 
     @Override
-    public TransactionBuilder transactionBuilder() {
-        return null;
-    }
-
-    @Override
     public boolean isOpen() {
-        return false;
+        return !this.closed.get();
     }
 
     @Override
     public boolean isClosed() {
-        return false;
+        return this.closed.get();
     }
 
     @Override
@@ -135,7 +163,7 @@ public class DefaultAGraph implements AGraph {
         VertexId vId = new VertexId(id, label);
 
         InternalVertex vertex = ElementBuilders.vertexBuilder()
-                .graph(this).id(vId).label(label)
+                .tx(this.tx()).id(vId).label(label)
                 .build();
         ElementHelper.attachProperties(vertex, VertexProperty.Cardinality.single, keyValues);
 
@@ -173,12 +201,18 @@ public class DefaultAGraph implements AGraph {
 
     @Override
     public IdPool idPool() {
-        return new SequenceIdPool();
+        return this.idPool;
     }
 
     @Override
     public ExecutorService ioThreadPool() {
-        return ForkJoinPool.commonPool();
+        return this.ioThreadPool;
+    }
+
+    private void verifyOpened() {
+        if (!this.isOpen()) {
+            throw new AGraphException("Transaction has not been opened");
+        }
     }
 
     private static VertexId validateAndGetVertexId(Object rawId) {

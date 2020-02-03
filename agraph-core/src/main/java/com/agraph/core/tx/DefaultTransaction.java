@@ -12,6 +12,7 @@ import com.agraph.core.InternalVertex;
 import com.agraph.core.type.EdgeId;
 import com.agraph.core.type.VertexId;
 import com.agraph.storage.StorageEngine;
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Iterators;
 import lombok.Getter;
@@ -55,8 +56,13 @@ public class DefaultTransaction implements AGraphTransaction {
     @Getter
     private boolean hasModifications;
     private TxState state;
+    private int verticesCapacity;
+    private int edgesCapacity;
 
     public DefaultTransaction(DefaultAGraph graph, StorageEngine storageEngine) {
+        Preconditions.checkNotNull(graph);
+        Preconditions.checkState(graph.isOpen());
+
         this.graph = graph;
         this.state = TxState.BEGIN;
         this.txId = graph.idPool().generate();
@@ -364,5 +370,19 @@ public class DefaultTransaction implements AGraphTransaction {
 
         this.storageEngine.addVertexRemovals(rmVertices);
         this.storageEngine.addEdgeRemovals(rmEdges);
+    }
+
+    private void checkTxVerticesCapacity() {
+        if (this.vertexMap.size() >= this.verticesCapacity) {
+            throw new TransactionException(
+                    "Vertices size has reached tx capacity " + this.verticesCapacity);
+        }
+    }
+
+    private void checkTxEdgesCapacity() {
+        if (this.edgeMap.size() >= this.edgesCapacity) {
+            throw new TransactionException(
+                    "Edges size has reached tx capacity " + this.edgesCapacity);
+        }
     }
 }

@@ -1,5 +1,6 @@
 package com.agraph.core;
 
+import com.agraph.AGraphTransaction;
 import com.agraph.State;
 import com.agraph.core.type.EdgeId;
 import com.agraph.core.type.VertexId;
@@ -18,14 +19,14 @@ public class ElementBuilders {
     @Accessors(fluent = true, chain = true)
     @Setter
     static class VertexBuilder {
-        private DefaultAGraph graph;
+        private AGraphTransaction tx;
         private VertexId id;
         private String label = Vertex.DEFAULT_LABEL;
         private State state = State.NEW;
         private Map<String, AGraphVertexProperty<?>> properties = new HashMap<>();
 
         public VertexBuilder from(InternalVertex that) {
-            this.graph = that.graph();
+            this.tx = that.tx();
             this.id = that.id();
             this.label = that.label();
             this.state = that.state();
@@ -47,14 +48,14 @@ public class ElementBuilders {
         }
 
         public InternalVertex build() {
-            return new InternalVertex(graph, id, label, state, properties);
+            return new InternalVertex(tx, id, label, state, properties);
         }
     }
 
     @Accessors(fluent = true, chain = true)
     @Setter
     static class EdgeBuilder {
-        private DefaultAGraph graph;
+        private AGraphTransaction tx;
         private EdgeId id;
         private String label = Vertex.DEFAULT_LABEL;
         private State state = State.NEW;
@@ -63,7 +64,7 @@ public class ElementBuilders {
         private long internalId;
 
         public EdgeBuilder from(InternalEdge that) {
-            this.graph = that.graph();
+            this.tx = that.tx();
             this.id = that.id();
             this.label = that.label();
             this.state = that.state();
@@ -90,7 +91,7 @@ public class ElementBuilders {
             if (id == null) {
                 id = EdgeId.create(label, outVertex, inVertex);
             }
-            InternalEdge edge = new InternalEdge(graph, id, label, state, outVertex, inVertex, properties);
+            InternalEdge edge = new InternalEdge(tx, id, label, state, outVertex, inVertex, properties);
             edge.assignInternalId(internalId);
             return edge;
         }

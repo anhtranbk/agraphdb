@@ -1,6 +1,7 @@
 package com.agraph.core;
 
 import com.agraph.AGraphEdge;
+import com.agraph.AGraphTransaction;
 import com.agraph.AGraphVertex;
 import com.agraph.State;
 import com.agraph.common.util.Strings;
@@ -8,6 +9,7 @@ import com.agraph.core.type.EdgeId;
 import com.agraph.core.type.ElementId;
 import com.agraph.core.type.VertexId;
 import com.google.common.base.Preconditions;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.experimental.Accessors;
 import org.apache.tinkerpop.gremlin.structure.Property;
@@ -26,47 +28,56 @@ import java.util.Set;
 
 @SuppressWarnings({"unchecked", "UnusedReturnValue", "SameParameterValue"})
 @Accessors(fluent = true)
+@Getter
 public abstract class AbstractElement implements InternalElement {
 
     protected static final Logger logger = LoggerFactory.getLogger(AbstractElement.class);
 
-    @Getter
-    private final DefaultAGraph graph;
-    @Getter
     private final ElementId id;
-    @Getter
     private final String label;
-    @Getter
+    private final AGraphTransaction tx;
     private State state;
 
-    private final Map<String, AGraphProperty<?>> properties = new HashMap<>();
+    @Getter(AccessLevel.NONE)
+    private final Map<String, AGraphProperty<?>> props = new HashMap<>();
+    /**
+     * Original values of modified/removed properties. These are used to rollback state
+     */
+    @Getter(AccessLevel.NONE)
+    private final Map<String, AGraphProperty<?>> originalProps = new HashMap<>();
+    /**
+     * Keeps track of all added properties in this transaction
+     */
     private final Set<AGraphProperty<?>> modifiedProps = new HashSet<>();
+    /**
+     * Keeps track of all removed properties in this transaction
+     */
     private final Set<AGraphProperty<?>> removedProps = new HashSet<>();
 
-    public AbstractElement(DefaultAGraph graph, ElementId id, String label, State state,
+    public AbstractElement(AGraphTransaction tx, ElementId id, String label, State state,
                            Map<String, ? extends AGraphProperty<?>> props) {
         Preconditions.checkNotNull(id, "Element Id cannot be null");
-        Preconditions.checkNotNull(graph, "Graph cannot be null");
+        Preconditions.checkState(tx.isOpen(), "Graph transaction has not been opened");
         ElementHelper.validateLabel(label);
 
-        this.graph = graph;
+        this.tx = tx;
         this.id = id;
         this.label = label;
         this.state = state;
-        this.properties.putAll(props);
+        this.props.putAll(props);
     }
 
     @Override
     public Map<String, AGraphProperty<?>> asPropertiesMap() {
         this.ensureFilledProperties(true);
-        return Collections.unmodifiableMap(this.properties);
+        return Collections.unmodifiableMap(this.props);
     }
 
     @Override
     public synchronized Map<String, Object> asValuesMap() {
         this.ensureFilledProperties(true);
-        Map<String, Object> props = new HashMap<>(this.properties.size());
-        for (Map.Entry<String, AGraphProperty<?>> entry : this.properties.entrySet()) {
+        Map<String, Object> props = new HashMap<>(this.props.size());
+        for (Map.Entry<String, AGraphProperty<?>> entry : this.props.entrySet()) {
             props.put(entry.getKey(), entry.getValue().value());
         }
         return props;
@@ -75,7 +86,7 @@ public abstract class AbstractElement implements InternalElement {
     @Override
     public <V> V valueOrNull(String key) {
         this.ensureFilledProperties(true);
-        AGraphProperty<?> prop = this.properties.get(key);
+        AGraphProperty<?> prop = this.props.get(key);
         if (prop == null) {
             return null;
         }
@@ -98,20 +109,19 @@ public abstract class AbstractElement implements InternalElement {
     @Override
     public void resetProperties() {
         this.ensureElementCanModify();
-        if (isNew()) {
-            this.properties.clear();
-        } else {
-            this.properties.values().forEach(AGraphProperty::remove);
-        }
+        // revert to original value for all properties
+        this.props.putAll(this.originalProps);
+        this.originalProps.clear();
     }
 
     @Override
-    public void copyProperties(AbstractElement element) {
+    public void copyProperties(InternalElement element) {
         this.ensureElementCanModify();
+        AbstractElement element1 = (AbstractElement) element;
         if (isNew()) {
-            this.properties.putAll(element.properties);
+            this.props.putAll(element1.props);
         } else {
-            element.properties.values().forEach(this::putProperty);
+            element1.props.values().forEach(this::putProperty);
         }
     }
 
@@ -139,33 +149,43 @@ public abstract class AbstractElement implements InternalElement {
 
     protected <V> AGraphProperty<V> removeProperty(String key) {
         this.ensureElementCanModify();
-        AGraphProperty<?> property = this.properties.remove(key);
+        AGraphProperty<?> property = this.props.remove(key);
         if (property != null) {
             if (!isNew()) {
                 // If element state is not NEW, removed property will be keep to
                 // synchronize with backend database later
+                logger.debug("Property removed: {}", property);
                 this.removedProps.add(property);
                 this.updateState(State.MODIFIED);
-                logger.debug("Property has been removed: {}", property);
+                this.keepOriginalPropertyIfNecessary(key);
             }
+            this.props.remove(key);
             return (AGraphProperty<V>) property;
         }
         throw Property.Exceptions.propertyDoesNotExist(this, key);
     }
 
-    protected <V> void putProperty(AGraphProperty<V> property) {
+    protected <V> void putProperty(AGraphProperty<V> prop) {
         this.ensureElementCanModify();
         if (!isNew()) {
-            logger.debug("Property added or updated {}", property);
-            this.modifiedProps.add(property);
+            logger.debug("Property added or updated {}", prop);
+            this.modifiedProps.add(prop);
+            this.updateState(State.MODIFIED);
+            this.keepOriginalPropertyIfNecessary(prop.key);
         }
-        this.properties.put(property.key(), property);
-        this.updateState(State.MODIFIED);
+        this.props.put(prop.key(), prop);
+    }
+
+    private void keepOriginalPropertyIfNecessary(String key) {
+        if (this.props.containsKey(key) && !this.originalProps.containsKey(key)) {
+            logger.debug("Keep original value for property {} of element {}", key, id);
+            this.originalProps.put(key, this.props.get(key));
+        }
     }
 
     protected Map<String, AGraphProperty<?>> autoFilledProperties() {
         this.ensureFilledProperties(true);
-        return this.properties;
+        return this.props;
     }
 
     /**
@@ -193,13 +213,13 @@ public abstract class AbstractElement implements InternalElement {
         if (isVertex()) {
             Optional<AGraphVertex> ops = this.tx().findVertex((VertexId) this.id);
             if (ops.isPresent()) {
-                this.properties.putAll(ops.get().asPropertiesMap());
+                this.props.putAll(ops.get().asPropertiesMap());
                 return true;
             }
         } else {
             Optional<AGraphEdge> ops = this.tx().findEdge((EdgeId) this.id);
             if (ops.isPresent()) {
-                this.properties.putAll(ops.get().asPropertiesMap());
+                this.props.putAll(ops.get().asPropertiesMap());
                 return true;
             }
         }
