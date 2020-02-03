@@ -1,7 +1,6 @@
 package com.agraph.storage;
 
 import com.agraph.GraphComponent;
-import com.agraph.config.Config;
 import com.agraph.core.InternalEdge;
 import com.agraph.core.InternalVertex;
 import com.agraph.core.type.EdgeId;
@@ -11,10 +10,6 @@ import org.apache.tinkerpop.gremlin.structure.Direction;
 import java.util.Iterator;
 
 public interface StorageEngine extends GraphComponent, AutoCloseable {
-
-    void open(Config conf); // open connect to backend db
-
-    boolean opened();
 
     void initialize(); // init db and table for graph
 

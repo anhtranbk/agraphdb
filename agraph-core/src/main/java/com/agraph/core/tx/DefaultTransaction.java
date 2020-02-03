@@ -60,9 +60,7 @@ public class DefaultTransaction implements AGraphTransaction {
         this.graph = graph;
         this.state = TxState.BEGIN;
         this.txId = graph.idPool().generate();
-
         this.storageEngine = storageEngine;
-        this.storageEngine.open(graph.config());
     }
 
     @Override

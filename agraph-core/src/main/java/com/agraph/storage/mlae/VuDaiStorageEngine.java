@@ -1,7 +1,6 @@
 package com.agraph.storage.mlae;
 
 import com.agraph.AGraph;
-import com.agraph.config.Config;
 import com.agraph.core.DefaultAGraph;
 import com.agraph.core.InternalEdge;
 import com.agraph.core.InternalVertex;
@@ -78,15 +77,6 @@ public class VuDaiStorageEngine implements StorageEngine {
     @Override
     public StorageBackend backend() {
         return backend;
-    }
-
-    @Override
-    public void open(Config conf) {
-    }
-
-    @Override
-    public boolean opened() {
-        return false;
     }
 
     @Override

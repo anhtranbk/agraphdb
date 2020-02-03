@@ -1,9 +1,13 @@
 package com.agraph.core;
 
-import com.agraph.storage.backend.BackendFactory;
 import com.agraph.config.Config;
 import com.agraph.config.ConfigDescriptor;
+import com.agraph.config.ConfigException;
 import com.agraph.config.Configurable;
+import com.agraph.core.serialize.DefaultSerializer;
+import com.agraph.core.serialize.Serializer;
+import com.agraph.storage.backend.BackendFactory;
+import com.agraph.storage.backend.BackendFactoryRegistry;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
@@ -16,10 +20,10 @@ public @Data class AGraphOptions implements Configurable {
     @ConfigDescriptor(name = "storage.engine")
     private String storageEngine;
 
-    @ConfigDescriptor(name = "backend.name")
+    @ConfigDescriptor(name = "storage.backend")
     private String backend;
 
-    private Class<?> backendFactoryCls;
+    private Serializer serializer;
 
     public AGraphOptions(Config conf) {
         this.configure(conf);
@@ -28,9 +32,20 @@ public @Data class AGraphOptions implements Configurable {
     public AGraphOptions() {
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public void configure(Config conf) {
-        Configurable.super.configure(conf);
-        backendFactoryCls = conf.getClass("backend.factory.class", BackendFactory.class);
+        try {
+            Configurable.super.configure(conf);
+            Class<Serializer> serializerCls = (Class<Serializer>)
+                    conf.getClass("backend.serializer", DefaultSerializer.class);
+            this.serializer = serializerCls.newInstance();
+        } catch (Throwable t) {
+            throw new ConfigException(t);
+        }
+    }
+
+    public BackendFactory backendFactory() {
+        return BackendFactoryRegistry.getFactory(this.backend);
     }
 }

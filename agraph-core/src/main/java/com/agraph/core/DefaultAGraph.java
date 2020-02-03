@@ -8,13 +8,12 @@ import com.agraph.config.Config;
 import com.agraph.config.ConfigUtils;
 import com.agraph.core.idpool.IdPool;
 import com.agraph.core.idpool.SequenceIdPool;
-import com.agraph.core.serialize.DefaultSerializer;
 import com.agraph.core.serialize.Serializer;
 import com.agraph.core.tx.TransactionBuilder;
 import com.agraph.core.type.EdgeId;
 import com.agraph.core.type.VertexId;
+import com.agraph.storage.StorageBackend;
 import com.google.common.collect.Iterators;
-import lombok.Getter;
 import lombok.experimental.Accessors;
 import org.apache.commons.configuration.Configuration;
 import org.apache.tinkerpop.gremlin.structure.Edge;
@@ -22,6 +21,8 @@ import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.apache.tinkerpop.gremlin.structure.VertexProperty;
 import org.apache.tinkerpop.gremlin.structure.util.ElementHelper;
 import org.apache.tinkerpop.gremlin.structure.util.StringFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -35,10 +36,12 @@ import java.util.stream.Collectors;
 @Accessors(fluent = true)
 public class DefaultAGraph implements AGraph {
 
+    private static final Logger logger = LoggerFactory.getLogger(DefaultAGraph.class);
+
     private final Config conf;
-    private final AGraphOptions aGraphOps;
-    @Getter
+    private final AGraphOptions options;
     private final Serializer serializer;
+    private final StorageBackend backend;
 
     private final ThreadLocal<AGraphTransaction> threadLocalTx = ThreadLocal.withInitial(() -> null);
     private final Map<Long, AGraphTransaction> txs = new HashMap<>();
@@ -47,15 +50,31 @@ public class DefaultAGraph implements AGraph {
         this(ConfigUtils.fromApacheConfiguration(apacheConf));
     }
 
-    public DefaultAGraph(Config aGraphConf) {
-        this.conf = aGraphConf;
-        this.aGraphOps = new AGraphOptions(this.conf);
-        this.serializer = new DefaultSerializer();
+    public DefaultAGraph(Config conf) {
+        logger.info("Initializing graph...");
+        logger.debug("AGraph configuration:\n" + conf);
+
+        this.conf = conf;
+        this.options = new AGraphOptions(this.conf);
+        this.serializer = this.options.serializer();
+
+        logger.info("Opening backend '{}' for graph '{}'", options.backend(), options.name());
+        this.backend = this.options.backendFactory().open(this);
     }
 
     @Override
     public String name() {
-        return this.aGraphOps.name();
+        return this.options.name();
+    }
+
+    @Override
+    public StorageBackend backend() {
+        return this.backend;
+    }
+
+    @Override
+    public Serializer serializer() {
+        return this.serializer;
     }
 
     @Override

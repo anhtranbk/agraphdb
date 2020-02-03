@@ -4,6 +4,7 @@ import com.agraph.config.Config;
 import com.agraph.core.idpool.IdPool;
 import com.agraph.core.serialize.Serializer;
 import com.agraph.core.tx.TransactionBuilder;
+import com.agraph.storage.StorageBackend;
 import org.apache.tinkerpop.gremlin.process.computer.GraphComputer;
 import org.apache.tinkerpop.gremlin.structure.Graph;
 import org.apache.tinkerpop.gremlin.structure.T;
@@ -14,6 +15,8 @@ import java.util.concurrent.ExecutorService;
 public interface AGraph extends Graph, Closeable {
 
     String name();
+
+    StorageBackend backend();
 
     Config config();
 
