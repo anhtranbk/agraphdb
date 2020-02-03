@@ -29,7 +29,7 @@ public class RowEntry {
     /**
      * @return Number of both key and value fields
      */
-    public int size() {
+    public int columnsSize() {
         return this.keys.size() + this.values.size();
     }
 

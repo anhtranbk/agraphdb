@@ -130,7 +130,7 @@ public class MySqlUtils {
     }
 
     public static List<Argument> buildInsertArgs(RowEntry entry) {
-        List<Argument> args = new ArrayList<>(entry.size());
+        List<Argument> args = new ArrayList<>(entry.columnsSize());
         for (Tuple2<String, Argument> tuple2 : entry.allKeysAndValues()) {
             args.add(tuple2._2);
         }
@@ -138,7 +138,7 @@ public class MySqlUtils {
     }
 
     public static List<Argument> buildUpdateArgs(RowEntry entry) {
-        List<Argument> args = new ArrayList<>(entry.size());
+        List<Argument> args = new ArrayList<>(entry.columnsSize());
         for (Tuple2<String, Argument> tuple2 : Iterables.concat(entry.values(), entry.keys())) {
             args.add(tuple2._2);
         }
@@ -156,7 +156,7 @@ public class MySqlUtils {
     public static List<Argument> buildUpsertArgs(RowEntry entry) {
         Iterable<Tuple2<String, Argument>> fields = Iterables.concat(
                 entry.keys(), entry.values(), entry.values());
-        List<Argument> args = new ArrayList<>(entry.size() + entry.values().size());
+        List<Argument> args = new ArrayList<>(entry.columnsSize() + entry.values().size());
         for (Tuple2<String, Argument> tuple2 : fields) {
             args.add(tuple2._2);
         }
