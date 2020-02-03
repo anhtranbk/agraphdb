@@ -1,7 +1,6 @@
 package com.agraph.core;
 
 import com.agraph.AGraphEdge;
-import com.agraph.AGraphElement;
 import com.agraph.AGraphVertex;
 import com.agraph.State;
 import com.agraph.common.util.Strings;
@@ -9,7 +8,6 @@ import com.agraph.core.type.EdgeId;
 import com.agraph.core.type.ElementId;
 import com.agraph.core.type.VertexId;
 import com.google.common.base.Preconditions;
-import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.experimental.Accessors;
 import org.apache.tinkerpop.gremlin.structure.Property;
@@ -28,20 +26,22 @@ import java.util.Set;
 
 @SuppressWarnings({"unchecked", "UnusedReturnValue", "SameParameterValue"})
 @Accessors(fluent = true)
-@Getter
-public abstract class AbstractElement implements AGraphElement {
+public abstract class AbstractElement implements InternalElement {
 
     protected static final Logger logger = LoggerFactory.getLogger(AbstractElement.class);
 
+    @Getter
     private final DefaultAGraph graph;
+    @Getter
     private final ElementId id;
+    @Getter
     private final String label;
+    @Getter
     private State state;
 
-    @Getter(AccessLevel.NONE)
     private final Map<String, AGraphProperty<?>> properties = new HashMap<>();
-    private final Set<AGraphProperty<?>> removedProps = new HashSet<>();
     private final Set<AGraphProperty<?>> modifiedProps = new HashSet<>();
+    private final Set<AGraphProperty<?>> removedProps = new HashSet<>();
 
     public AbstractElement(DefaultAGraph graph, ElementId id, String label, State state,
                            Map<String, ? extends AGraphProperty<?>> props) {
@@ -115,7 +115,8 @@ public abstract class AbstractElement implements AGraphElement {
         }
     }
 
-    protected void updateState(State state) {
+    @Override
+    public void updateState(State state) {
         if (state != State.REMOVED && this.state != state && this.state.nextState() != state) {
             final String msg = Strings.format(
                     "Illegal next state. Current: %s, expected: %s, got: %s",
@@ -126,11 +127,13 @@ public abstract class AbstractElement implements AGraphElement {
         this.state = state;
     }
 
-    protected Set<AGraphProperty<?>> removedProperties() {
+    @Override
+    public Set<AGraphProperty<?>> removedProperties() {
         return Collections.unmodifiableSet(this.removedProps);
     }
 
-    protected Set<AGraphProperty<?>> modifiedProperties() {
+    @Override
+    public Set<AGraphProperty<?>> modifiedProperties() {
         return Collections.unmodifiableSet(this.modifiedProps);
     }
 
@@ -153,7 +156,7 @@ public abstract class AbstractElement implements AGraphElement {
     protected <V> void putProperty(AGraphProperty<V> property) {
         this.ensureElementCanModify();
         if (!isNew()) {
-            logger.debug("Property has been added or updated {}", property);
+            logger.debug("Property added or updated {}", property);
             this.modifiedProps.add(property);
         }
         this.properties.put(property.key(), property);
