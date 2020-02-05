@@ -6,19 +6,27 @@ import java.util.Collection;
 
 public interface BackendTransaction {
 
-    void beforeCommit(Collection<Mutation> mutations);
+    default void beforeCommit(Collection<Mutation> mutations) {
+    }
 
     void commit();
 
-    void afterCommit();
+    default void afterCommit() {
+    }
 
-    void beforeRollback(Collection<Mutation> mutations);
+    default void beforeRollback(Collection<Mutation> mutations) {
+    }
 
     void rollback();
 
-    void afterRollback();
+    default void afterRollback() {
+    }
 
-    boolean autoCommit();
+    default boolean autoCommit() {
+        return false;
+    }
 
-    void autoCommit(boolean autoCommit);
+    default void autoCommit(boolean autoCommit) {
+        throw new UnsupportedOperationException();
+    }
 }
