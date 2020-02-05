@@ -84,9 +84,9 @@ public class MySqlUtils {
         sb.append(" SET ");
 
         int i = 0;
-        for (Tuple2<String, Argument> val : entry.values()) {
+        for (Tuple2<String, Argument> tuple2 : entry.values()) {
             if (i++ > 0) sb.append(",");
-            sb.append(val._1);
+            sb.append(tuple2._1);
             sb.append("=%s");
         }
 
@@ -103,9 +103,9 @@ public class MySqlUtils {
         // on duplicate key then update
         sb.append("\nON DUPLICATE KEY UPDATE ");
         int i = 0;
-        for (Tuple2<String, Argument> val : entry.values()) {
+        for (Tuple2<String, Argument> tuple2 : entry.values()) {
             if (i++ > 0) sb.append(",");
-            sb.append(val._1);
+            sb.append(tuple2._1);
             sb.append("=%s");
         }
         return sb.toString();
