@@ -108,12 +108,15 @@ public class MySqlSession implements BackendSession {
                 sb.append(" NOT NULL");
             }
             if (column.defaultValue() != null) {
+                sb.append(" DEFAULT ");
                 Object obj = column.defaultValue();
                 if (obj instanceof String) {
                     sb.append("'").append(obj).append("'");
                 } else {
                     sb.append(obj);
                 }
+            } else if (column.autoIncrement()) {
+                sb.append(" AUTO_INCREMENT");
             }
             sb.append(",\n");
         }
