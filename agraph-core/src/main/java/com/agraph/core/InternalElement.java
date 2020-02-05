@@ -3,6 +3,7 @@ package com.agraph.core;
 import com.agraph.AGraphElement;
 import com.agraph.Statifiable;
 
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -22,9 +23,14 @@ public interface InternalElement extends AGraphElement, Statifiable {
         return id().isEdge();
     }
 
+    @SuppressWarnings("UnusedReturnValue")
+    <V> AGraphProperty<V> removeProperty(String key);
+
     void resetProperties();
 
     void copyProperties(InternalElement element);
+
+    void attachPropertiesUnchecked(Map<String, ?> props);
 
     AGraphElement copy();
 }

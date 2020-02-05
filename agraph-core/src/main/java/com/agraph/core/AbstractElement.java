@@ -38,8 +38,6 @@ public abstract class AbstractElement implements InternalElement {
     private final AGraphTransaction tx;
     private State state;
 
-    @Getter(AccessLevel.NONE)
-    private final Map<String, AGraphProperty<?>> props = new HashMap<>();
     /**
      * Original values of modified/removed properties. These are used to rollback state
      */
@@ -54,8 +52,10 @@ public abstract class AbstractElement implements InternalElement {
      */
     private final Set<AGraphProperty<?>> removedProps = new HashSet<>();
 
-    public AbstractElement(AGraphTransaction tx, ElementId id, String label, State state,
-                           Map<String, ? extends AGraphProperty<?>> props) {
+    @Getter(AccessLevel.NONE)
+    private final Map<String, AGraphProperty<?>> props = new HashMap<>();
+
+    public AbstractElement(AGraphTransaction tx, ElementId id, String label, State state) {
         Preconditions.checkNotNull(id, "Element Id cannot be null");
         Preconditions.checkState(tx.isOpen(), "Graph transaction has not been opened");
         ElementHelper.validateLabel(label);
@@ -64,7 +64,6 @@ public abstract class AbstractElement implements InternalElement {
         this.id = id;
         this.label = label;
         this.state = state;
-        this.props.putAll(props);
     }
 
     @Override
@@ -147,7 +146,8 @@ public abstract class AbstractElement implements InternalElement {
         return Collections.unmodifiableSet(this.modifiedProps);
     }
 
-    protected <V> AGraphProperty<V> removeProperty(String key) {
+    @Override
+    public <V> AGraphProperty<V> removeProperty(String key) {
         this.ensureElementCanModify();
         AGraphProperty<?> property = this.props.remove(key);
         if (property != null) {
@@ -163,6 +163,14 @@ public abstract class AbstractElement implements InternalElement {
             return (AGraphProperty<V>) property;
         }
         throw Property.Exceptions.propertyDoesNotExist(this, key);
+    }
+
+    @Override
+    public void attachPropertiesUnchecked(Map<String, ?> props) {
+        for (Map.Entry<String, ?> entry : props.entrySet()) {
+            final String key = entry.getKey();
+            this.props.put(key, createProperty(key, entry.getValue()));
+        }
     }
 
     protected <V> void putProperty(AGraphProperty<V> prop) {
@@ -231,4 +239,6 @@ public abstract class AbstractElement implements InternalElement {
             return false;
         }
     }
+
+    protected abstract AGraphProperty<?> createProperty(String key, Object value);
 }

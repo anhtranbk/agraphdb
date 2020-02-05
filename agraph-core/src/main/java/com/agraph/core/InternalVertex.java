@@ -16,7 +16,6 @@ import org.apache.tinkerpop.gremlin.structure.util.StringFactory;
 
 import java.util.Arrays;
 import java.util.Iterator;
-import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -25,9 +24,8 @@ import java.util.stream.Collectors;
  */
 public class InternalVertex extends AbstractElement implements AGraphVertex {
 
-    public InternalVertex(AGraphTransaction tx, VertexId id, String label, State state,
-                          Map<String, AGraphVertexProperty<?>> props) {
-        super(tx, id, label, state, props);
+    public InternalVertex(AGraphTransaction tx, VertexId id, String label, State state) {
+        super(tx, id, label, state);
     }
 
     @Override
@@ -70,7 +68,6 @@ public class InternalVertex extends AbstractElement implements AGraphVertex {
     @Override
     public <V> VertexProperty<V> property(VertexProperty.Cardinality cardinality,
                                           String key, V value, Object... keyValues) {
-        this.ensureElementCanModify();
         if (keyValues.length != 0) {
             throw VertexProperty.Exceptions.metaPropertiesNotSupported();
         }
@@ -118,11 +115,18 @@ public class InternalVertex extends AbstractElement implements AGraphVertex {
 
     @Override
     public AbstractElement copy() {
-        return ElementBuilders.vertexBuilder().from(this).build();
+        InternalVertex that = ElementBuilders.vertexBuilder().from(this).build();
+        that.copyProperties(this);
+        return that;
     }
 
     @Override
     public String toString() {
         return StringFactory.vertexString(this);
+    }
+
+    @Override
+    protected AGraphProperty<?> createProperty(String key, Object value) {
+        return new AGraphVertexProperty<>(this, key, value);
     }
 }

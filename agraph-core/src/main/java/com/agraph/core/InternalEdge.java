@@ -16,7 +16,6 @@ import org.apache.tinkerpop.gremlin.structure.util.StringFactory;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 @Accessors(fluent = true)
@@ -27,9 +26,8 @@ public class InternalEdge extends AbstractElement implements AGraphEdge {
     private long internalId;
 
     public InternalEdge(AGraphTransaction tx, EdgeId id, String label, State state,
-                        InternalVertex outVertex, InternalVertex inVertex,
-                        Map<String, ? extends AGraphEdgeProperty<?>> props) {
-        super(tx, id, label, state, props);
+                        InternalVertex outVertex, InternalVertex inVertex) {
+        super(tx, id, label, state);
 
         Preconditions.checkNotNull(outVertex, "Outgoing vertex can't be null");
         Preconditions.checkNotNull(inVertex, "Incoming vertex can't be null");
@@ -89,7 +87,9 @@ public class InternalEdge extends AbstractElement implements AGraphEdge {
 
     @Override
     public AbstractElement copy() {
-        return ElementBuilders.edgeBuilder().from(this).build();
+        InternalEdge that = ElementBuilders.edgeBuilder().from(this).build();
+        that.copyProperties(this);
+        return that;
     }
 
     @Override
@@ -99,5 +99,10 @@ public class InternalEdge extends AbstractElement implements AGraphEdge {
 
     public void assignInternalId(long id) {
         if (id != 0) this.internalId = id;
+    }
+
+    @Override
+    protected AGraphProperty<?> createProperty(String key, Object value) {
+        return new AGraphEdgeProperty<>(this, key, value);
     }
 }
