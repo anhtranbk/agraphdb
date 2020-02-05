@@ -60,7 +60,7 @@ public class InternalVertex extends AbstractElement implements AGraphVertex {
                 .label(label)
                 .outVertex(this)
                 .inVertex(vertex)
-                .internalId(0)
+                .internalId(this.graph().idPool().generate())
                 .build();
         ElementHelper.attachProperties(edge, keyValues);
 
