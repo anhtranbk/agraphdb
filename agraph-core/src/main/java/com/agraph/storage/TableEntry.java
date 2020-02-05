@@ -11,13 +11,13 @@ import java.util.List;
 
 @Accessors(fluent = true)
 @Getter
-public class RowEntry {
+public class TableEntry {
 
     private final List<Tuple2<String, Argument>> keys;
     private final List<Tuple2<String, Argument>> values;
 
-    public RowEntry(List<Tuple2<String, Argument>> keys,
-                    List<Tuple2<String, Argument>> values) {
+    public TableEntry(List<Tuple2<String, Argument>> keys,
+                      List<Tuple2<String, Argument>> values) {
         this.keys = keys;
         this.values = values;
     }
@@ -51,8 +51,8 @@ public class RowEntry {
             return this;
         }
 
-        public RowEntry build() {
-            return new RowEntry(keys, values);
+        public TableEntry build() {
+            return new TableEntry(keys, values);
         }
     }
 }

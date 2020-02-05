@@ -4,7 +4,7 @@ import com.agraph.common.concurrent.FutureHelper;
 import com.agraph.common.util.Strings;
 import com.agraph.storage.Mutation;
 import com.agraph.storage.Result;
-import com.agraph.storage.RowEntry;
+import com.agraph.storage.TableEntry;
 import com.agraph.storage.backend.BackendException;
 import com.agraph.storage.backend.BackendSession;
 import com.agraph.storage.backend.BackendTransaction;
@@ -17,7 +17,6 @@ import com.agraph.storage.rdbms.schema.Argument;
 import com.agraph.storage.rdbms.schema.Column;
 import com.agraph.storage.rdbms.schema.TableDefine;
 import com.google.common.base.Preconditions;
-import com.google.common.collect.Iterables;
 import com.google.common.util.concurrent.ListenableFuture;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -100,7 +99,7 @@ public class MySqlSession implements BackendSession {
         StringBuilder sb = new StringBuilder();
         sb.append(Strings.format("CREATE TABLE IF NOT EXISTS %s (\n", tableDefine.name()));
 
-        for (Column column : tableDefine.allColumns()) {
+        for (Column column : tableDefine.columns()) {
             sb.append("\t");
             sb.append(column.name()).append(" ");
             sb.append(MySqlUtils.dbTypeToString(column.type(), column.length()));
@@ -121,9 +120,7 @@ public class MySqlSession implements BackendSession {
             sb.append(",\n");
         }
 
-        Iterable<String> keys = Iterables.transform(tableDefine.keyColumns(), Column::name);
-        String pkText = Strings.join(keys, ", ");
-
+        String pkText = Strings.join(tableDefine.keys(), ", ");
         sb.append("\t").append("PRIMARY KEY (").append(pkText).append(")\n");
         sb.append(") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;");
 
@@ -254,7 +251,7 @@ public class MySqlSession implements BackendSession {
         try {
             for (Mutation mutation : mutations) {
                 logger.debug("Do mutate on mutation with {} entries", mutation.entrySize());
-                for (RowEntry entry : mutation.entries()) {
+                for (TableEntry entry : mutation.entries()) {
                     String template = buildTemplate(mutation.table(), mutation.action(), entry);
                     BatchStatement bs = statements.get(template);
                     if (bs == null) {
@@ -290,7 +287,7 @@ public class MySqlSession implements BackendSession {
         }
     }
 
-    private static String buildTemplate(String table, Mutation.Action action, RowEntry entry) {
+    private static String buildTemplate(String table, Mutation.Action action, TableEntry entry) {
         switch (action) {
             case ADD:
                 return MySqlUtils.buildInsertTemplate(table, entry);
@@ -306,7 +303,7 @@ public class MySqlSession implements BackendSession {
         }
     }
 
-    private static List<Argument> buildArgumentList(Mutation.Action action, RowEntry entry) {
+    private static List<Argument> buildArgumentList(Mutation.Action action, TableEntry entry) {
         switch (action) {
             case ADD:
                 return MySqlUtils.buildInsertArgs(entry);

@@ -10,7 +10,7 @@ import com.agraph.core.serialize.Serializer;
 import com.agraph.core.type.DataType;
 import com.agraph.storage.Mutation;
 import com.agraph.storage.MutationBuilder;
-import com.agraph.storage.RowEntry;
+import com.agraph.storage.TableEntry;
 import com.agraph.storage.rdbms.schema.Argument;
 
 import java.util.Arrays;
@@ -53,7 +53,7 @@ public class Mutations implements MutationBuilder {
 
     @Override
     public Collection<Mutation> fromRemovedVertices(Iterable<InternalVertex> vertices) {
-        Collection<RowEntry> entries = StreamSupports.stream(vertices)
+        Collection<TableEntry> entries = StreamSupports.stream(vertices)
                 .filter(Objects::nonNull)
                 .map(vertex -> toEntryBuilder(vertex).build())
                 .collect(Collectors.toList());
@@ -90,7 +90,7 @@ public class Mutations implements MutationBuilder {
             updateProps.add(hiddenProp);
         }
 
-        Collection<RowEntry> modifiedEntries = updateProps.stream()
+        Collection<TableEntry> modifiedEntries = updateProps.stream()
                 .map(p -> this.toEntryBuilder(vertex)
                         .addKey(KEY_COL, Argument.of(p.key(), false))
                         .addValue(VALUE_COL, Argument.of(serializer.write(DataType.RAW, p.value())))
@@ -104,7 +104,7 @@ public class Mutations implements MutationBuilder {
             );
         }
 
-        Collection<RowEntry> removedEntries = vertex.removedProps().stream()
+        Collection<TableEntry> removedEntries = vertex.removedProps().stream()
                 .map(p -> this.toEntryBuilder(vertex)
                         .addKey(KEY_COL, Argument.of(p.key(), false))
                         .addValue(VALUE_COL, Argument.of(serializer.write(DataType.RAW, p.value())))
@@ -123,8 +123,8 @@ public class Mutations implements MutationBuilder {
                 ? edge.asPropertiesMap().values()
                 : edge.modifiedProps();
 
-        Collection<RowEntry> modifiedEntries = updateProps.stream()
-                .map(p -> RowEntry.builder()
+        Collection<TableEntry> modifiedEntries = updateProps.stream()
+                .map(p -> TableEntry.builder()
                         .addKey(REF_ID_COL, Argument.of(edge.internalId()))
                         .addKey(KEY_COL, Argument.of(p.key(), false))
                         .addValue(VALUE_COL, Argument.of(serializer.write(DataType.RAW, p.value())))
@@ -133,7 +133,7 @@ public class Mutations implements MutationBuilder {
                 .collect(Collectors.toList());
 
         if (edge.isNew()) {
-            RowEntry addEntry = this.toEntryBuilder(edge)
+            TableEntry addEntry = this.toEntryBuilder(edge)
                     .addValue(REF_ID_COL, Argument.of(edge.internalId()))
                     .build();
 
@@ -149,8 +149,8 @@ public class Mutations implements MutationBuilder {
             );
         }
 
-        Collection<RowEntry> removedEntries = edge.removedProps().stream()
-                .map(p -> RowEntry.builder()
+        Collection<TableEntry> removedEntries = edge.removedProps().stream()
+                .map(p -> TableEntry.builder()
                         .addKey(REF_ID_COL, Argument.of(edge.internalId()))
                         .addKey(KEY_COL, Argument.of(p.key(), false))
                         .addValue(VALUE_COL, Argument.of(serializer.write(DataType.RAW, p.value())))
@@ -165,8 +165,8 @@ public class Mutations implements MutationBuilder {
     }
 
     private Collection<Mutation> removedEdgeToMutation(InternalEdge edge) {
-        RowEntry edgeEntry = this.toEntryBuilder(edge).build();
-        RowEntry propsEntry = RowEntry.builder()
+        TableEntry edgeEntry = this.toEntryBuilder(edge).build();
+        TableEntry propsEntry = TableEntry.builder()
                 .addKey(REF_ID_COL, Argument.of(edge.internalId())).build();
 
         return Arrays.asList(
@@ -175,16 +175,16 @@ public class Mutations implements MutationBuilder {
         );
     }
 
-    private RowEntry.Builder toEntryBuilder(InternalVertex vertex) {
-        return RowEntry.builder()
+    private TableEntry.Builder toEntryBuilder(InternalVertex vertex) {
+        return TableEntry.builder()
                 .addKey(ID_COL, Argument.of(serializer.write(vertex.id())))
                 .addKey(LABEL_COL, Argument.of(vertex.label(), false));
     }
 
-    private RowEntry.Builder toEntryBuilder(InternalEdge edge) {
+    private TableEntry.Builder toEntryBuilder(InternalEdge edge) {
         final InternalVertex outV = edge.outVertex();
         final InternalVertex inV = edge.inVertex();
-        return RowEntry.builder()
+        return TableEntry.builder()
                 .addKey(VERTEX_SRC_ID_COL, Argument.of(serializer.write(outV.id()), false))
                 .addKey(VERTEX_DST_ID_COL, Argument.of(serializer.write(inV.id()), false))
                 .addKey(VERTEX_SRC_LABEL_COL, Argument.of(outV.label()))

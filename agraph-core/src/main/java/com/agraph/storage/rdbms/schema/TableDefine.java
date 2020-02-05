@@ -1,42 +1,49 @@
 package com.agraph.storage.rdbms.schema;
 
-import com.google.common.collect.Iterables;
 import lombok.Getter;
 import lombok.experimental.Accessors;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Accessors(fluent = true)
-@Getter
 public class TableDefine {
 
+    @Getter
     private final String name;
-    private final List<Column> nonKeyColumns;
-    private final List<Column> keyColumns;
+    private final List<Column> columns = new ArrayList<>();
+    private final List<String> keys = new ArrayList<>();
 
-    public TableDefine(String name, List<Column> keyColumns, List<Column> nonKeyColumns) {
+    public TableDefine(String name) {
         this.name = name;
-        this.keyColumns = keyColumns;
-        this.nonKeyColumns = nonKeyColumns;
     }
 
-    public Iterable<Column> allColumns() {
-        return Iterables.concat(this.keyColumns, this.nonKeyColumns);
-    }
-
-    public TableDefine addPartitionColumns(Column... columns) {
+    public TableDefine keys(String... keys) {
+        this.keys.addAll(Arrays.asList(keys));
         return this;
     }
 
-    public TableDefine addClusteringColumns(Column... columns) {
+    public List<String> keys() {
+        return Collections.unmodifiableList(this.keys);
+    }
+
+    public TableDefine columns(Column... columns) {
+        this.columns.addAll(Arrays.asList(columns));
         return this;
     }
 
-    public TableDefine addNormalColumns(Column... columns) {
-        return this;
+    public List<Column> columns() {
+        return Collections.unmodifiableList(columns);
     }
 
-    public static TableDefine create(String name, List<Column> keyColumns, List<Column> nonKeyColumns) {
-        return new TableDefine(name, keyColumns, nonKeyColumns);
+    public List<String> columnNames() {
+        return this.columns.stream().map(Column::name).collect(Collectors.toList());
+    }
+
+    public static TableDefine create(String name) {
+        return new TableDefine(name);
     }
 }

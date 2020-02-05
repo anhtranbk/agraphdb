@@ -1,7 +1,7 @@
 package com.agraph.storage.mlae;
 
 import com.agraph.AGraph;
-import com.agraph.core.DefaultAGraph;
+import com.agraph.core.DefaultGraph;
 import com.agraph.core.InternalEdge;
 import com.agraph.core.InternalVertex;
 import com.agraph.core.type.EdgeId;
@@ -28,7 +28,6 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
@@ -61,7 +60,7 @@ public class VuDaiStorageEngine implements StorageEngine {
 
     private boolean initialized;
 
-    public VuDaiStorageEngine(DefaultAGraph graph, StorageBackend backend) {
+    public VuDaiStorageEngine(DefaultGraph graph, StorageBackend backend) {
         this.graph = graph;
         this.backend = backend;
         this.structureOps = new StructureOptions(graph.config());
@@ -123,7 +122,7 @@ public class VuDaiStorageEngine implements StorageEngine {
     }
 
     private void initVertexTable() {
-        List<Column> keys = Arrays.asList(
+        TableDefine define = TableDefine.create(VERTEX_TABLE).columns(
                 Column.builder(ID_COL, DBType.VARBINARY)
                         .length(structureOps.getMaxIdLength())
                         .allowNull(false)
@@ -135,40 +134,41 @@ public class VuDaiStorageEngine implements StorageEngine {
                 Column.builder(KEY_COL, DBType.VARCHAR)
                         .length(structureOps.getMaxPropertyNameLength())
                         .allowNull(false)
-                        .build());
-        List<Column> cols = Collections.singletonList(
-                Column.builder(VALUE_COL, DBType.VARBINARY).length(255).build());
+                        .build(),
+                Column.builder(VALUE_COL, DBType.VARBINARY).length(255).build()
+        );
+        define.keys(ID_COL, LABEL_COL, KEY_COL);
 
         try {
-            TableDefine td = TableDefine.create(VERTEX_TABLE, keys, cols);
-            backend.session().createTable(td).get();
+            backend.session().createTable(define).get();
         } catch (Throwable t) {
             throw new StorageException(t);
         }
     }
 
     private void initVertexLargePropsTable() {
-        List<Column> keys = Arrays.asList(
+        TableDefine define = TableDefine.create(VERTEX_LARGE_PROPS_TABLE).columns(
                 Column.builder(ID_COL, DBType.BIGINT).allowNull(false).build(),
                 Column.builder(KEY_COL, DBType.VARCHAR)
                         .length(structureOps.getMaxPropertyNameLength())
                         .allowNull(false)
-                        .build());
-        List<Column> cols = Collections.singletonList(
+                        .build(),
                 Column.builder(VALUE_COL, DBType.VARBINARY)
                         .length(structureOps.getMaxPropertyValueLength())
                         .allowNull(false)
-                        .build());
+                        .build()
+        );
+        define.keys(ID_COL, KEY_COL);
+
         try {
-            TableDefine td = TableDefine.create(VERTEX_LARGE_PROPS_TABLE, keys, cols);
-            backend.session().createTable(td).get();
+            backend.session().createTable(define).get();
         } catch (Throwable t) {
             throw new StorageException(t);
         }
     }
 
     private void initEdgeTable() {
-        List<Column> keys = Arrays.asList(
+        TableDefine define = TableDefine.create(EDGE_TABLE).columns(
                 Column.builder(VERTEX_SRC_ID_COL, DBType.VARBINARY)
                         .length(structureOps.getMaxIdLength())
                         .allowNull(false)
@@ -188,56 +188,58 @@ public class VuDaiStorageEngine implements StorageEngine {
                 Column.builder(LABEL_COL, DBType.VARBINARY)
                         .length(structureOps.getMaxLabelLength())
                         .allowNull(false)
-                        .build());
-        List<Column> cols = Collections.singletonList(
+                        .build(),
                 Column.builder(REF_ID_COL, DBType.BIGINT)
                         .allowNull(false)
                         .autoIncrement(true)
-                        .build());
+                        .build()
+        );
+        define.keys(VERTEX_SRC_ID_COL, VERTEX_DST_ID_COL,
+                VERTEX_SRC_LABEL_COL, VERTEX_DST_LABEL_COL,
+                LABEL_COL);
 
         try {
-            TableDefine td = TableDefine.create(EDGE_TABLE, keys, cols);
-            backend.session().createTable(td).get();
+            backend.session().createTable(define).get();
         } catch (Throwable t) {
             throw new StorageException(t);
         }
     }
 
     private void initEdgePropsTable() {
-        List<Column> keys = Arrays.asList(
+        TableDefine define = TableDefine.create(EDGE_PROPS_TABLE).columns(
                 Column.builder(ID_COL, DBType.BIGINT)
                         .allowNull(false).build(),
                 Column.builder(KEY_COL, DBType.VARCHAR)
                         .length(structureOps.getMaxPropertyNameLength())
                         .allowNull(false)
-                        .build());
-        List<Column> cols = Collections.singletonList(
+                        .build(),
                 Column.builder(VALUE_COL, DBType.VARBINARY)
                         .length(structureOps.getMaxPropertyNameLength())
                         .allowNull(false)
                         .build());
+        define.keys(ID_COL, KEY_COL);
+
         try {
-            TableDefine td = TableDefine.create(EDGE_PROPS_TABLE, keys, cols);
-            backend.session().createTable(td).get();
+            backend.session().createTable(define).get();
         } catch (Throwable t) {
             throw new StorageException(t);
         }
     }
 
     private void initSystemTable() {
-        List<Column> keys = Collections.singletonList(
+        TableDefine define = TableDefine.create(SYSTEM_TABLE).columns(
                 Column.builder(KEY_COL, DBType.VARCHAR)
                         .length(64)
                         .allowNull(false)
-                        .build());
-        List<Column> cols = Collections.singletonList(
+                        .build(),
                 Column.builder(VALUE_COL, DBType.VARBINARY)
                         .length(128)
                         .allowNull(false)
-                        .build());
+                        .build()
+        ).keys(KEY_COL);
+
         try {
-            TableDefine td = TableDefine.create(EDGE_PROPS_TABLE, keys, cols);
-            backend.session().createTable(td).get();
+            backend.session().createTable(define).get();
         } catch (Throwable t) {
             throw new StorageException(t);
         }

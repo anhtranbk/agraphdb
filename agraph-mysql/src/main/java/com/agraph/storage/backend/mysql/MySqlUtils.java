@@ -1,7 +1,7 @@
 package com.agraph.storage.backend.mysql;
 
 import com.agraph.common.tuple.Tuple2;
-import com.agraph.storage.RowEntry;
+import com.agraph.storage.TableEntry;
 import com.agraph.storage.rdbms.query.Condition;
 import com.agraph.storage.rdbms.query.MultiCondition;
 import com.agraph.storage.rdbms.query.SingleCondition;
@@ -56,7 +56,7 @@ public class MySqlUtils {
         return args;
     }
 
-    public static String buildInsertTemplate(String table, RowEntry entry) {
+    public static String buildInsertTemplate(String table, TableEntry entry) {
         StringBuilder sb = new StringBuilder();
         sb.append("INSERT INTO ");
         sb.append(table).append("(");
@@ -78,7 +78,7 @@ public class MySqlUtils {
         return sb.toString();
     }
 
-    public static String buildUpdateTemplate(String table, RowEntry entry) {
+    public static String buildUpdateTemplate(String table, TableEntry entry) {
         StringBuilder sb = new StringBuilder();
         sb.append("UPDATE ").append(table);
         sb.append(" SET ");
@@ -96,7 +96,7 @@ public class MySqlUtils {
         return sb.toString();
     }
 
-    public static String buildUpsertTemplate(String table, RowEntry entry) {
+    public static String buildUpsertTemplate(String table, TableEntry entry) {
         StringBuilder sb = new StringBuilder();
         sb.append(buildInsertTemplate(table, entry));
 
@@ -111,7 +111,7 @@ public class MySqlUtils {
         return sb.toString();
     }
 
-    public static String buildRemoveTemplate(String table, RowEntry entry) {
+    public static String buildRemoveTemplate(String table, TableEntry entry) {
         StringBuilder sb = new StringBuilder();
         sb.append("DELETE FROM ");
         sb.append(table);
@@ -119,7 +119,7 @@ public class MySqlUtils {
         return sb.toString();
     }
 
-    public static void buildWhereCondition(StringBuilder sb, RowEntry entry) {
+    public static void buildWhereCondition(StringBuilder sb, TableEntry entry) {
         sb.append(" WHERE ");
         int i = 0;
         for (Tuple2<String, Argument> key : entry.keys()) {
@@ -129,7 +129,7 @@ public class MySqlUtils {
         }
     }
 
-    public static List<Argument> buildInsertArgs(RowEntry entry) {
+    public static List<Argument> buildInsertArgs(TableEntry entry) {
         List<Argument> args = new ArrayList<>(entry.columnsSize());
         for (Tuple2<String, Argument> tuple2 : entry.allKeysAndValues()) {
             args.add(tuple2._2);
@@ -137,7 +137,7 @@ public class MySqlUtils {
         return args;
     }
 
-    public static List<Argument> buildUpdateArgs(RowEntry entry) {
+    public static List<Argument> buildUpdateArgs(TableEntry entry) {
         List<Argument> args = new ArrayList<>(entry.columnsSize());
         for (Tuple2<String, Argument> tuple2 : Iterables.concat(entry.values(), entry.keys())) {
             args.add(tuple2._2);
@@ -145,7 +145,7 @@ public class MySqlUtils {
         return args;
     }
 
-    public static List<Argument> buildRemoveArgs(RowEntry entry) {
+    public static List<Argument> buildRemoveArgs(TableEntry entry) {
         List<Argument> args = new ArrayList<>(entry.keys().size());
         for (Tuple2<String, Argument> tuple2 : entry.keys()) {
             args.add(tuple2._2);
@@ -153,7 +153,7 @@ public class MySqlUtils {
         return args;
     }
 
-    public static List<Argument> buildUpsertArgs(RowEntry entry) {
+    public static List<Argument> buildUpsertArgs(TableEntry entry) {
         Iterable<Tuple2<String, Argument>> fields = Iterables.concat(
                 entry.keys(), entry.values(), entry.values());
         List<Argument> args = new ArrayList<>(entry.columnsSize() + entry.values().size());
