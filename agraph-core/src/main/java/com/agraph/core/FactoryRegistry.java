@@ -1,48 +1,50 @@
-package com.agraph.storage.backend;
+package com.agraph.core;
 
-import com.agraph.common.util.Strings;
+import com.agraph.AGraphException;
 import com.agraph.storage.StorageBackend;
+import com.agraph.storage.backend.BackendException;
+import com.agraph.storage.backend.BackendFactory;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class BackendFactoryRegistry {
+public class FactoryRegistry {
 
     private static Map<String, Class<? extends BackendFactory>> providers = new ConcurrentHashMap<>();
 
-    public static BackendFactory getFactory(String backend) {
+    public static BackendFactory getBackendFactory(String backend) {
         Class<? extends BackendFactory> clazz = providers.get(backend);
         if (clazz == null) {
-            throw new BackendException("Not exists StorageBackend: " + backend);
+            throw new AGraphException("Not exists StorageBackend: %s", backend);
         }
         try {
-            return (BackendFactory) clazz.newInstance();
+            return clazz.newInstance();
         } catch (InstantiationException | IllegalAccessException e) {
-            throw new BackendException();
+            throw new AGraphException(e);
         }
     }
 
     @SuppressWarnings({"rawtypes", "unchecked"})
-    public static void register(String name, String classPath) {
-        ClassLoader classLoader = BackendFactoryRegistry.class.getClassLoader();
+    public static void registerBackendFactory(String name, String classPath) {
+        ClassLoader classLoader = FactoryRegistry.class.getClassLoader();
         Class<?> clazz;
         try {
             clazz = classLoader.loadClass(classPath);
         } catch (Exception e) {
-            throw new BackendException(e);
+            throw new AGraphException(e);
         }
 
         // Check subclass
         boolean subclass = StorageBackend.class.isAssignableFrom(clazz);
         if (!subclass) {
-            throw new BackendException(Strings.format("Class '%s' is not a subclass of " +
-                    "class StorageBackend", clazz.getName()));
+            throw new BackendException("Class '%s' is not a subclass of " +
+                    "class StorageBackend", clazz.getName());
         }
 
         // Check exists
         if (providers.containsKey(name)) {
-            throw new BackendException(Strings.format("Exists BackendStoreProvider: %s (%s)",
-                    name, providers.get(name)));
+            throw new BackendException("Exists BackendStoreProvider: %s (%s)",
+                    name, providers.get(name));
         }
 
         // Register class

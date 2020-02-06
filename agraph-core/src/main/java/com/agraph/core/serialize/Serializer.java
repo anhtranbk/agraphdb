@@ -2,7 +2,6 @@ package com.agraph.core.serialize;
 
 import com.agraph.core.type.DataType;
 import com.agraph.core.type.VertexId;
-import com.agraph.exc.SerializationException;
 
 import java.io.IOException;
 import java.io.InputStream;
