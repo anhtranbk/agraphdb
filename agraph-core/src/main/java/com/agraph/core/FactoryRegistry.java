@@ -1,7 +1,6 @@
 package com.agraph.core;
 
 import com.agraph.AGraphException;
-import com.agraph.storage.StorageBackend;
 import com.agraph.storage.backend.BackendException;
 import com.agraph.storage.backend.BackendFactory;
 
@@ -35,10 +34,10 @@ public class FactoryRegistry {
         }
 
         // Check subclass
-        boolean subclass = StorageBackend.class.isAssignableFrom(clazz);
+        boolean subclass = BackendFactory.class.isAssignableFrom(clazz);
         if (!subclass) {
             throw new BackendException("Class '%s' is not a subclass of " +
-                    "class StorageBackend", clazz.getName());
+                    "class BackendFactory", clazz.getName());
         }
 
         // Check exists
