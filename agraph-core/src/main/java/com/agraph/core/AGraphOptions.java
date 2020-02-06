@@ -7,7 +7,6 @@ import com.agraph.config.Configurable;
 import com.agraph.core.serialize.DefaultSerializer;
 import com.agraph.core.serialize.Serializer;
 import com.agraph.storage.backend.BackendFactory;
-import com.agraph.storage.backend.BackendFactoryRegistry;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
@@ -46,6 +45,6 @@ public @Data class AGraphOptions implements Configurable {
     }
 
     public BackendFactory backendFactory() {
-        return BackendFactoryRegistry.getFactory(this.backend);
+        return FactoryRegistry.getBackendFactory(this.backend);
     }
 }
