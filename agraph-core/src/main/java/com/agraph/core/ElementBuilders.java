@@ -4,6 +4,7 @@ import com.agraph.AGraphTransaction;
 import com.agraph.State;
 import com.agraph.core.type.EdgeId;
 import com.agraph.core.type.VertexId;
+import com.google.common.base.Preconditions;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
@@ -38,7 +39,6 @@ public class ElementBuilders {
     @Setter
     public static class EdgeBuilder {
         private AGraphTransaction tx;
-        private EdgeId id;
         private String label = Vertex.DEFAULT_LABEL;
         private State state = State.NEW;
         private InternalVertex outVertex, inVertex;
@@ -46,7 +46,6 @@ public class ElementBuilders {
 
         public EdgeBuilder from(InternalEdge that) {
             this.tx = that.tx();
-            this.id = that.id();
             this.label = that.label();
             this.state = that.state();
             this.inVertex = that.inVertex();
@@ -55,10 +54,10 @@ public class ElementBuilders {
         }
 
         public InternalEdge build() {
-            if (id == null) {
-                id = EdgeId.create(label, outVertex, inVertex);
-            }
+            EdgeId id = new EdgeId(label, outVertex.id(), inVertex.id());
             InternalEdge edge = new InternalEdge(tx, id, label, state, outVertex, inVertex);
+
+            Preconditions.checkArgument(internalId > 0, "Internal ID must be greater than 0");
             edge.assignInternalId(internalId);
             return edge;
         }

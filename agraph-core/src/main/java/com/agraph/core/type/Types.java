@@ -2,7 +2,7 @@ package com.agraph.core.type;
 
 import com.agraph.common.tuple.Tuple2;
 import com.agraph.core.serialize.BytesBuffer;
-import com.agraph.exc.SerializationException;
+import com.agraph.core.serialize.SerializationException;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;

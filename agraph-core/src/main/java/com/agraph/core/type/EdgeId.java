@@ -1,8 +1,7 @@
 package com.agraph.core.type;
 
-import com.agraph.AGraphVertex;
 import com.agraph.common.util.Strings;
-import com.agraph.exc.SerializationException;
+import com.agraph.core.serialize.SerializationException;
 import com.google.common.base.Preconditions;
 import lombok.Getter;
 import lombok.experimental.Accessors;
@@ -15,10 +14,6 @@ public class EdgeId extends ElementId {
     @Getter
     private final VertexId outVertexId, inVertexId;
     private String cache;
-
-    public EdgeId(String label, AGraphVertex outV, AGraphVertex inV) {
-        this(label, outV.id(), inV.id());
-    }
 
     public EdgeId(String label, VertexId outVertexId, VertexId inVertexId) {
         Preconditions.checkArgument(
@@ -54,14 +49,6 @@ public class EdgeId extends ElementId {
     @Override
     public boolean isVertex() {
         return false;
-    }
-
-    public static EdgeId create(String label, AGraphVertex outVertex, AGraphVertex inVertex) {
-        return new EdgeId(label, outVertex, inVertex);
-    }
-
-    public static EdgeId fromBytes(byte[] bytes) {
-        return fromString(Strings.fromBytes(bytes));
     }
 
     public static EdgeId fromString(String id) {
