@@ -8,13 +8,15 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Properties;
 import java.util.Set;
 import java.util.TreeSet;
@@ -112,8 +114,8 @@ public class Config {
         setCollection(key, Arrays.asList(elements));
     }
 
-    public void setCollection(String key, Iterable<String> list) {
-        inst.setProperty(key, Strings.join(list, LIST_DELIMITER));
+    public void setCollection(String key, Collection<String> coll) {
+        inst.setProperty(key, Strings.join(coll, LIST_DELIMITER));
     }
 
     public void setClass(String key, Class<?> cls) {
@@ -133,11 +135,27 @@ public class Config {
     }
 
     public String getString(String key) {
-        return getProperty(key);
+        String val = getProperty(key);
+        if (Strings.isNullOrEmpty(val)) {
+            throw new ConfigException(new NoSuchElementException());
+        }
+        return val;
     }
 
     public String getString(String key, String defVal) {
         return getProperty(key, defVal);
+    }
+
+    public String[] getStringArray(String key) {
+        return getString(key).split(",");
+    }
+
+    public int getInt(String key) {
+        try {
+            return Integer.parseInt(getProperty(key));
+        } catch (Exception e) {
+            throw new ConfigException(e);
+        }
     }
 
     public int getInt(String key, int defVal) {
@@ -145,6 +163,14 @@ public class Config {
             return Integer.parseInt(getProperty(key));
         } catch (Exception ignored) {
             return defVal;
+        }
+    }
+
+    public long getLong(String key) {
+        try {
+            return Long.parseLong(getProperty(key));
+        } catch (Exception e) {
+            throw new ConfigException(e);
         }
     }
 
@@ -156,11 +182,43 @@ public class Config {
         }
     }
 
+    public BigInteger getBigInt(String key) {
+        try {
+            return new BigInteger(getProperty(key));
+        } catch (Exception e) {
+            throw new ConfigException(e);
+        }
+    }
+
+    public BigInteger getBigInt(String key, BigInteger defVal) {
+        try {
+            return new BigInteger(getProperty(key));
+        } catch (Exception ignored) {
+            return defVal;
+        }
+    }
+
+    public double getDouble(String key) {
+        try {
+            return Double.parseDouble(getProperty(key));
+        } catch (Exception e) {
+            throw  new ConfigException(e);
+        }
+    }
+
     public double getDouble(String key, double defVal) {
         try {
             return Double.parseDouble(getProperty(key));
         } catch (Exception ignored) {
             return defVal;
+        }
+    }
+
+    public float getFloat(String key) {
+        try {
+            return Float.parseFloat(getProperty(key));
+        } catch (Exception e) {
+            throw new ConfigException(e);
         }
     }
 
@@ -172,6 +230,14 @@ public class Config {
         }
     }
 
+    public boolean getBool(String key) {
+        try {
+            return Boolean.parseBoolean(getProperty(key));
+        } catch (Exception e) {
+            throw new ConfigException(e);
+        }
+    }
+
     public boolean getBool(String key, boolean defVal) {
         try {
             return Boolean.parseBoolean(getProperty(key));
@@ -180,19 +246,11 @@ public class Config {
         }
     }
 
-    public Collection<String> getCollection(String key) {
+    public List<String> getList(String key) {
         try {
             return Arrays.asList(getProperty(key).split(","));
-        } catch (Exception ignored) {
-            return Collections.emptyList();
-        }
-    }
-
-    public List<String> getCollection(String key, String delimiter) {
-        try {
-            return Arrays.asList(getProperty(key).split(delimiter));
-        } catch (Exception ignored) {
-            return Collections.emptyList();
+        } catch (Exception e) {
+            throw new ConfigException(e);
         }
     }
 
@@ -221,9 +279,9 @@ public class Config {
     }
 
     public Collection<Class<?>> getClasses(String key) throws ClassNotFoundException {
-        Collection<String> clsNames = getCollection(key);
+        Collection<String> clsNames = getList(key);
         List<Class<?>> classes = new ArrayList<>(clsNames.size());
-        for (String className : getCollection(key)) {
+        for (String className : getList(key)) {
             classes.add(Class.forName(className));
         }
         return classes;
@@ -231,6 +289,17 @@ public class Config {
 
     public Properties toProperties() {
         return new Properties(inst);
+    }
+
+    public Set<String> getKeys() {
+        Set<String> keys = new HashSet<>();
+        for (Object key : this.inst.keySet()) {
+            keys.add(key.toString());
+        }
+        for (Object key : defaultProps.keySet()) {
+            keys.add(key.toString());
+        }
+        return keys;
     }
 
     @Override

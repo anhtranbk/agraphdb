@@ -22,7 +22,7 @@ public interface Configurable {
                 String name = descriptor.name();
                 String defVal = descriptor.defaultValue();
 
-                if (!conf.containsKey(name) && !descriptor.allowNull()) {
+                if (!conf.containsKey(name) && !descriptor.allowMissing()) {
                     throw new ConfigException("Missing config value for key: " + name);
                 }
 
@@ -55,7 +55,7 @@ public interface Configurable {
                     field.set(this, conf.getDateTime(name, descriptor.datetimeFormat(), defDate));
 
                 } else if (type.isAssignableFrom(Collection.class)) {
-                    field.set(this, conf.getCollection(name, descriptor.collectionDelimiter()));
+                    field.set(this, conf.getList(name));
 
                 } else {
                     field.set(this, conf.getString(name, defVal));

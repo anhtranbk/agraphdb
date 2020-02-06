@@ -19,9 +19,7 @@ public @interface ConfigDescriptor {
 
     double maxValue() default Long.MAX_VALUE;
 
-    boolean allowNull() default true;
+    boolean allowMissing() default true;
 
     String datetimeFormat() default DateTimes.ISO_FORMAT;
-
-    String collectionDelimiter() default ",";
 }
