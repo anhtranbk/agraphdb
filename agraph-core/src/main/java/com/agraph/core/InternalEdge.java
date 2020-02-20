@@ -25,9 +25,9 @@ public class InternalEdge extends AbstractElement implements AGraphEdge {
     private final InternalVertex inVertex, outVertex;
     private long internalId;
 
-    public InternalEdge(AGraphTransaction tx, EdgeId id, String label, State state,
+    public InternalEdge(AGraphTransaction tx, String label, State state,
                         InternalVertex outVertex, InternalVertex inVertex) {
-        super(tx, id, label, state);
+        super(tx, new EdgeId(label, outVertex.id(), inVertex.id()), label, state);
 
         Preconditions.checkNotNull(outVertex, "Outgoing vertex can't be null");
         Preconditions.checkNotNull(inVertex, "Incoming vertex can't be null");

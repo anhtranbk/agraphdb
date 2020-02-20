@@ -2,7 +2,6 @@ package com.agraph.core;
 
 import com.agraph.AGraphTransaction;
 import com.agraph.State;
-import com.agraph.core.type.EdgeId;
 import com.agraph.core.type.VertexId;
 import com.google.common.base.Preconditions;
 import lombok.Setter;
@@ -54,10 +53,8 @@ public class ElementBuilders {
         }
 
         public InternalEdge build() {
-            EdgeId id = new EdgeId(label, outVertex.id(), inVertex.id());
-            InternalEdge edge = new InternalEdge(tx, id, label, state, outVertex, inVertex);
-
             Preconditions.checkArgument(internalId > 0, "Internal ID must be greater than 0");
+            InternalEdge edge = new InternalEdge(tx, label, state, outVertex, inVertex);
             edge.assignInternalId(internalId);
             return edge;
         }
